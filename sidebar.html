@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <base target="_top">
+  <link rel="stylesheet" href="https://ssl.gstatic.com/docs/script/css/add-ons1.css">
+  <!-- The CSS package above applies Google styling to buttons and other elements. -->
+
+  <style>
+    .branding-below {
+      bottom: 56px;
+      top: 0;
+    }
+
+    .branding-text {
+      left: 7px;
+      position: relative;
+      top: 3px;
+    }
+
+    .col-contain {
+      overflow: hidden;
+    }
+
+    .col-one {
+      float: left;
+      width: 50%;
+    }
+
+    .logo {
+      vertical-align: middle;
+    }
+
+    .radio-spacer {
+      height: 20px;
+    }
+
+    .width-100 {
+      width: 100%;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="sidebar branding-below">
+    <h2>Writing Style</h2>
+    <div id="scanningMsgDiv">
+      <div id="scanningMsg">Scanning document...</div>
+    </div>
+
+    <div id="resultsDiv" style="display: none">
+        <div id="systemErrorDiv" style="display: none">
+            <p id="systemErrorMsg">An error occurred scanning your document.</p>
+        </div>
+      <div id="errorsFoundDiv" style="display: none">
+        <h3 id="errorsFoundMsg"></h3>
+        <hr>
+        <h4>Passive Voice</h4>
+        <div style="margin-left: 1rem">
+            <p>These sentences use passive voice.  Try to maintain an active voice, such as: 
+                <br/>
+                Charles <strong><em>ran</em></strong> on the field.
+            </p>
+        </div>
+        <div id="errorsListDiv"></div>
+      </div>
+      <div id="noErrorsDiv" style="display: none">
+        <p>No errors found.</p>
+      </div>
+    </div>
+
+    <br/>
+    <div id="rescanBtnDiv" style="display: none">
+      <button id="rescanBtn">Re-scan Document</button>
+    </div>
+  </div>
+
+  <div class="sidebar bottom">
+  </div>
+
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>
+    /**
+     * On document load, assign click handlers to each button and try to load the
+     * user's origin and destination language preferences if previously set.
+     */
+    $(function () {
+      $('#rescanBtn').click(scanDocument);
+      scanDocument();
+    });
+
+    function scanDocument() {
+      $('#scanningMsgDiv').show();
+      $("#resultsDiv").hide();
+      $('#rescanBtnDiv').hide();
+      $('#systemErrorDiv').hide();
+      $('#errorsFoundDiv').hide();
+      $('#noErrorsDiv').hide();
+      $('#errorsListDiv').empty();
+
+      google.script.run
+        .withSuccessHandler(
+          function (passiveVoiceResult) {
+            if (!passiveVoiceResult) {
+              $('#noErrorsDiv').show();
+            } else {
+              $('#errorsFoundMsg').text('One suggestion found.');
+              $('#errorsFoundDiv').show();
+
+              let beforeError = passiveVoiceResult.elementText.substring(0, passiveVoiceResult.startOffset);
+              let errorText = passiveVoiceResult.elementText.substring(passiveVoiceResult.startOffset, passiveVoiceResult.endOffset + 1);
+              let afterError = passiveVoiceResult.elementText.substring(passiveVoiceResult.endOffset + 1);
+
+              let $errorTextNode = $("<strong></strong>").text(errorText);
+              let $resultNode = $("<div></div>");
+              $resultNode.append($("<p></p>").html(beforeError + $errorTextNode.prop('outerHTML') + afterError));
+              let $correctButton = $("<button></button").text('Correct');
+              $correctButton.data({
+                paragraphNum: passiveVoiceResult.paragraphNum,
+                startOffset: passiveVoiceResult.startOffset, 
+                endOffset: passiveVoiceResult.endOffset,
+                replaceText: 'cried'
+              });
+              $correctButton.click(correctError);
+              $resultNode.append($correctButton);
+              $correctButton.css('display', 'inline');
+              $('#errorsListDiv').append($resultNode);
+            }
+
+            $('#scanningMsgDiv').hide();
+            $('#resultsDiv').show();
+            $('#rescanBtnDiv').show();
+          })
+        .withFailureHandler(
+          function () {
+            $('#scanningMsgDiv').hide();
+            $('#systemErrorDiv').show();
+            $('#rescanBtnDov').show();
+          })
+        .scanDocument();
+    }
+
+  function correctError (e) {
+      // console.log($(e.target).data());
+      $(e.target).prop('disabled', true);
+      $(e.target).text('Correcting...');
+
+      google.script.run
+      .withSuccessHandler(
+        function () {
+          $(e.target).text('Corrected');
+        })
+      .correctError($(e.target).data());
+  }
+  </script>
+</body>
+
+</html>
