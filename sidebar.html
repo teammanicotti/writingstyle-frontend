@@ -89,6 +89,9 @@
       scanDocument();
     });
 
+    /**
+     * Request the server to scan the opened document.
+     */ 
     function scanDocument() {
       $('#scanningMsgDiv').show();
       $("#resultsDiv").hide();
@@ -99,38 +102,7 @@
       $('#errorsListDiv').empty();
 
       google.script.run
-        .withSuccessHandler(
-          function (passiveVoiceResult) {
-            if (!passiveVoiceResult) {
-              $('#noErrorsDiv').show();
-            } else {
-              $('#errorsFoundMsg').text('One suggestion found.');
-              $('#errorsFoundDiv').show();
-
-              let beforeError = passiveVoiceResult.elementText.substring(0, passiveVoiceResult.startOffset);
-              let errorText = passiveVoiceResult.elementText.substring(passiveVoiceResult.startOffset, passiveVoiceResult.endOffset + 1);
-              let afterError = passiveVoiceResult.elementText.substring(passiveVoiceResult.endOffset + 1);
-
-              let $errorTextNode = $("<strong></strong>").text(errorText);
-              let $resultNode = $("<div></div>");
-              $resultNode.append($("<p></p>").html(beforeError + $errorTextNode.prop('outerHTML') + afterError));
-              let $correctButton = $("<button></button").text('Correct');
-              $correctButton.data({
-                paragraphNum: passiveVoiceResult.paragraphNum,
-                startOffset: passiveVoiceResult.startOffset, 
-                endOffset: passiveVoiceResult.endOffset,
-                replaceText: 'cried'
-              });
-              $correctButton.click(correctError);
-              $resultNode.append($correctButton);
-              $correctButton.css('display', 'inline');
-              $('#errorsListDiv').append($resultNode);
-            }
-
-            $('#scanningMsgDiv').hide();
-            $('#resultsDiv').show();
-            $('#rescanBtnDiv').show();
-          })
+        .withSuccessHandler(renderResults)
         .withFailureHandler(
           function () {
             $('#scanningMsgDiv').hide();
@@ -140,17 +112,63 @@
         .scanDocument();
     }
 
-  function correctError (e) {
-      // console.log($(e.target).data());
-      $(e.target).prop('disabled', true);
-      $(e.target).text('Correcting...');
+  /**
+   * Renders the suggestions returned from the server for the user.
+   */
+  function renderResults(results) {
+    if (results.length === 0) {
+      $('#noErrorsDiv').show();
+    } else {
+      var errorsText = results.length === 1 ? 'One suggestion found' : results.length + ' suggestions found.';
+      $('#errorsFoundMsg').text(errorsText);
+      $('#errorsFoundDiv').show();
+      
+      for (let result of results) {
+        let beforeError = result.elementText.substring(0, result.startOffset);
+        let errorText = result.elementText.substring(
+          result.startOffset,
+          result.endOffset + 1);
+        let afterError = result.elementText.substring(result.endOffset + 1);
+
+        let $errorTextNode = $("<strong></strong>").text(errorText);
+        let $resultNode = $("<div></div>");
+        $resultNode.append($("<p></p>").html(beforeError + $errorTextNode.prop('outerHTML') + afterError));
+
+        let $correctButton = $("<button></button").text('Correct');
+        $correctButton.data({
+          paragraphNum: result.paragraphNum,
+          startOffset: result.startOffset, 
+          endOffset: result.endOffset,
+          replaceText: 'cried'
+        });
+        $correctButton.click(correctError);
+        $resultNode.append($correctButton);
+        $correctButton.css('display', 'inline');
+
+        $('#errorsListDiv').append($resultNode);
+      }
+    }
+    $('#scanningMsgDiv').hide();
+    $('#resultsDiv').show();
+    $('#rescanBtnDiv').show();
+  }
+
+  /**
+   * Requests the selected suggestion to be made to the document.
+   * @param suggestionButton the 'Correct' button for a given suggestion
+   */
+  function correctError (suggestionButton) {
+      var buttonPressed = $(suggestionButton.target);
+
+      buttonPressed.prop('disabled', true);
+      buttonPressed.text('Correcting...');
 
       google.script.run
       .withSuccessHandler(
         function () {
-          $(e.target).text('Corrected');
+          buttonPressed.text('Corrected');
         })
-      .correctError($(e.target).data());
+      .correctError(buttonPressed.data());
   }
   </script>
 </body>

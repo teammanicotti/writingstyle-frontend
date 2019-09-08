@@ -49,10 +49,9 @@ function showSidebar() {
   DocumentApp.getUi().showSidebar(ui);
 }
 
-function stuff() {
-  return DocumentApp.getActiveDocument().getBody().editAsText().findText('was sad').getStartOffset();
-}
-
+/**
+ * Scans the document for possible writing errors.
+ */
 function scanDocument() {
   var document = DocumentApp.getActiveDocument();
   // var header = document.getHeader(); // TODO
@@ -60,14 +59,18 @@ function scanDocument() {
   // var footer = document.getFooter(); // TODO
   // var footnotes = document.getFootnotes(); // TODO
   var paragraphs = body.getParagraphs();
-  var bodyText = paragraphs[0].editAsText();
-  var passiveVoiceResult = passiveVoiceCheck(bodyText);
+  var bodyText = paragraphs[0].editAsText(); // Hardcoding paragraph zero for now.
+  var passiveVoiceResult = passiveVoiceCheck(bodyText); // Hardcoding only passive voice check for now.
 
-  return passiveVoiceResult;
+  return passiveVoiceResult ? [passiveVoiceResult] : []; // Return array of corrections
 }
 
+/**
+ * Performs a dummy check for passive voice in the text sample.
+ * @param bodyText the Text instance for the writing sample
+ */
 function passiveVoiceCheck(bodyText) {
-  var result = bodyText.findText("was sad");
+  var result = bodyText.findText("was sad"); // Hardcoding specific phrase for now.
   if (result !== null) {
     return {
       paragraphNum: 0,
@@ -80,6 +83,11 @@ function passiveVoiceCheck(bodyText) {
   }
 }
 
+/**
+ * Performs the provided correction on the writing sample.
+ * @param correctionObj object containing the paragraph, start and stop offsets,
+ * and the correction to make
+ */
 function correctError(correctionObj) {
   var paragraphs = DocumentApp.getActiveDocument().getBody().getParagraphs();
   var paragraph = paragraphs[correctionObj.paragraphNum];
