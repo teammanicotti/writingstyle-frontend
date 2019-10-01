@@ -60,9 +60,36 @@ function scanDocument() {
   // var footnotes = document.getFootnotes(); // TODO
   var paragraphs = body.getParagraphs();
   var bodyText = paragraphs[0].editAsText(); // Hardcoding paragraph zero for now.
-  var passiveVoiceResult = passiveVoiceCheck(bodyText); // Hardcoding only passive voice check for now.
+  var simpleToComplexResult = simpleToComplexCheck(document);
+  // var passiveVoiceResult = passiveVoiceCheck(bodyText); // Hardcoding only passive voice check for now.
 
   return passiveVoiceResult ? [passiveVoiceResult] : []; // Return array of corrections
+  return simpleToComplexResult;
+}
+
+function simpleToComplexCheck(document) {
+  // var results = [];
+  var reqUrl = PropertiesService.getScriptProperties().getProperty("simpleToComplexEndpoint");
+
+  var paragraphs = document.getParagraphs();
+  for (var i = 0; i < paragraphs.length; i++) {
+    var paragraph = paragraphs[i];
+    var startChar = document.newPosition(paragraph).getOffset();
+    var reqBody = {
+      text: paragraph.getText(),
+      paragraph_num: i,
+      paragraph_start_char: startChar
+    };
+
+    var options = {
+      'method': 'post',
+      'contentType': 'application/json',
+      'payload': JSON.stringify(reqBody)
+    };
+
+    var response = UrlFetchApp.fetch(reqUrl, options);
+    return response;
+  }
 }
 
 /**

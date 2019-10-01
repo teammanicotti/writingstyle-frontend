@@ -124,26 +124,26 @@
       $('#errorsFoundDiv').show();
       
       for (let result of results) {
-        let beforeError = result.elementText.substring(0, result.startOffset);
+        // let beforeError = result.elementText.substring(0, result.startOffset);
         let errorText = result.elementText.substring(
           result.startOffset,
           result.endOffset + 1);
-        let afterError = result.elementText.substring(result.endOffset + 1);
+        // let afterError = result.elementText.substring(result.endOffset + 1);
 
         let $errorTextNode = $("<strong></strong>").text(errorText);
         let $resultNode = $("<div></div>");
-        $resultNode.append($("<p></p>").html(beforeError + $errorTextNode.prop('outerHTML') + afterError));
+        $resultNode.append($("<p></p>").html($errorTextNode.prop('outerHTML')));
 
-        let $correctButton = $("<button></button").text('Correct');
-        $correctButton.data({
-          paragraphNum: result.paragraphNum,
-          startOffset: result.startOffset, 
-          endOffset: result.endOffset,
-          replaceText: 'cried'
-        });
-        $correctButton.click(correctError);
-        $resultNode.append($correctButton);
-        $correctButton.css('display', 'inline');
+        // let $correctButton = $("<button></button").text('Correct');
+        // $correctButton.data({
+        //   paragraphNum: result.paragraphNum,
+        //   startOffset: result.startOffset, 
+        //   endOffset: result.endOffset,
+        //   replaceText: 'cried'
+        // });
+        // $correctButton.click(correctError);
+        // $resultNode.append($correctButton);
+        // $correctButton.css('display', 'inline');
 
         $('#errorsListDiv').append($resultNode);
       }
