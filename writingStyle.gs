@@ -60,25 +60,29 @@ function scanDocument() {
   // var footnotes = document.getFootnotes(); // TODO
   var paragraphs = body.getParagraphs();
   var bodyText = paragraphs[0].editAsText(); // Hardcoding paragraph zero for now.
-  var simpleToComplexResult = simpleToComplexCheck(document);
+  //var simpleToComplexResult = simpleToComplexCheck(document);
   // var passiveVoiceResult = passiveVoiceCheck(bodyText); // Hardcoding only passive voice check for now.
 
-  return passiveVoiceResult ? [passiveVoiceResult] : []; // Return array of corrections
-  return simpleToComplexResult;
+  // return passiveVoiceResult ? [passiveVoiceResult] : []; // Return array of corrections
+  return simpleToComplexCheck(document);
 }
 
 function simpleToComplexCheck(document) {
   // var results = [];
-  var reqUrl = PropertiesService.getScriptProperties().getProperty("simpleToComplexEndpoint");
+  var scriptProperties = PropertiesService.getScriptProperties();
+  var reqUrl = scriptProperties.getProperty("simpleToComplexEndpoint");
+  var similarityThreshold = scriptProperties.getProperty("similarityThreshold");
 
   var paragraphs = document.getParagraphs();
   for (var i = 0; i < paragraphs.length; i++) {
     var paragraph = paragraphs[i];
-    var startChar = document.newPosition(paragraph).getOffset();
+    var startChar = document.newPosition(paragraph, 0).getOffset();
     var reqBody = {
       text: paragraph.getText(),
       paragraph_num: i,
-      paragraph_start_char: startChar
+      paragraph_start_char: startChar,
+      threshold: similarityThreshold,
+      gSuite: true
     };
 
     var options = {
@@ -87,7 +91,8 @@ function simpleToComplexCheck(document) {
       'payload': JSON.stringify(reqBody)
     };
 
-    var response = UrlFetchApp.fetch(reqUrl, options);
+    var response = UrlFetchApp.fetch(reqUrl, options).getContentText();
+    
     return response;
   }
 }

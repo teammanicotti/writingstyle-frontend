@@ -55,11 +55,9 @@
       <div id="errorsFoundDiv" style="display: none">
         <h3 id="errorsFoundMsg"></h3>
         <hr>
-        <h4>Passive Voice</h4>
+        <h4>Simple Sentences</h4>
         <div style="margin-left: 1rem">
-            <p>These sentences use passive voice.  Try to maintain an active voice, such as: 
-                <br/>
-                Charles <strong><em>ran</em></strong> on the field.
+            <p>These sentence pairs can be combined to make cohesive, complex sentences.
             </p>
         </div>
         <div id="errorsListDiv"></div>
@@ -116,12 +114,15 @@
    * Renders the suggestions returned from the server for the user.
    */
   function renderResults(results) {
+    var results = JSON.parse(results);
     if (results.length === 0) {
       $('#noErrorsDiv').show();
     } else {
       var errorsText = results.length === 1 ? 'One suggestion found' : results.length + ' suggestions found.';
       $('#errorsFoundMsg').text(errorsText);
       $('#errorsFoundDiv').show();
+
+      console.log(results);
       
       for (let result of results) {
         // let beforeError = result.elementText.substring(0, result.startOffset);
