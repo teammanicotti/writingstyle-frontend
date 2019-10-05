@@ -57,7 +57,7 @@
         <hr>
         <h4>Simple Sentences</h4>
         <div style="margin-left: 1rem">
-            <p>These sentence pairs can be combined to make cohesive, complex sentences.
+            <p>These sentences can be combined to make cohesive, complex sentences.
             </p>
         </div>
         <div id="errorsListDiv"></div>
@@ -114,7 +114,6 @@
    * Renders the suggestions returned from the server for the user.
    */
   function renderResults(results) {
-    var results = JSON.parse(results);
     if (results.length === 0) {
       $('#noErrorsDiv').show();
     } else {

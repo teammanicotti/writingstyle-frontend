@@ -68,7 +68,7 @@ function scanDocument() {
 }
 
 function simpleToComplexCheck(document) {
-  // var results = [];
+  var results = [];
   var scriptProperties = PropertiesService.getScriptProperties();
   var reqUrl = scriptProperties.getProperty("simpleToComplexEndpoint");
   var similarityThreshold = scriptProperties.getProperty("similarityThreshold");
@@ -92,9 +92,11 @@ function simpleToComplexCheck(document) {
     };
 
     var response = UrlFetchApp.fetch(reqUrl, options).getContentText();
+    var responseObj = JSON.parse(response);
     
-    return response;
+    results = results.concat(responseObj);
   }
+  return results;
 }
 
 /**
