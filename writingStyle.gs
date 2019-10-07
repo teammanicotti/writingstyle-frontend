@@ -60,11 +60,18 @@ function scanDocument() {
   // var footnotes = document.getFootnotes(); // TODO
   var paragraphs = body.getParagraphs();
   var bodyText = paragraphs[0].editAsText(); // Hardcoding paragraph zero for now.
-  //var simpleToComplexResult = simpleToComplexCheck(document);
-  // var passiveVoiceResult = passiveVoiceCheck(bodyText); // Hardcoding only passive voice check for now.
 
-  // return passiveVoiceResult ? [passiveVoiceResult] : []; // Return array of corrections
-  return simpleToComplexCheck(document);
+
+  var simpleToComplexResult = simpleToComplexCheck(document);
+  var passiveVoiceResult = passiveVoiceCheck(document);
+
+  var response = {
+    totalSuggestions: simpleToComplexResult.length + passiveVoiceResult.length,
+    simpleToComplex: simpleToComplexResult,
+    passiveVoice: passiveVoiceResult
+  }
+
+  return response;
 }
 
 function simpleToComplexCheck(document) {
@@ -96,6 +103,8 @@ function simpleToComplexCheck(document) {
     
     results = results.concat(responseObj);
   }
+  
+  Logger.log(results);
   return results;
 }
 
@@ -103,18 +112,26 @@ function simpleToComplexCheck(document) {
  * Performs a dummy check for passive voice in the text sample.
  * @param bodyText the Text instance for the writing sample
  */
-function passiveVoiceCheck(bodyText) {
-  var result = bodyText.findText("was sad"); // Hardcoding specific phrase for now.
-  if (result !== null) {
-    return {
-      paragraphNum: 0,
-      elementText: result.getElement().asText().getText(),  
-      startOffset: result.isPartial() ? result.getStartOffset() : 0,
-      endOffset: result.isPartial() ? result.getEndOffsetInclusive() : result.getElement().asText().getText().length - 1
-    };
-  } else {
-    return false;
-  }
+function passiveVoiceCheck(document) {
+  var scriptProperties = PropertiesService.getScriptProperties();
+  var reqUrl = scriptProperties.getProperty("passiveVoiceEndpoint");
+  var results = []
+
+  var reqBody = {
+    text: document.getBody().getText()
+  };
+
+  var options = {
+    'method': 'post',
+    'contentType': 'application/json',
+    'payload': JSON.stringify(reqBody)
+  };
+
+  var response = UrlFetchApp.fetch(reqUrl, options).getContentText();
+  var responseObj = JSON.parse(response);
+  results = results.concat(responseObj['results']);
+  
+  return results;
 }
 
 /**
