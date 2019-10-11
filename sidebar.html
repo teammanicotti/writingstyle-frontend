@@ -52,18 +52,40 @@
         <div id="systemErrorDiv" style="display: none">
             <p id="systemErrorMsg">An error occurred scanning your document.</p>
         </div>
-      <div id="errorsFoundDiv" style="display: none">
-        <h3 id="errorsFoundMsg"></h3>
+
+      <div>
+        <h3 id="errorsFoundMsg" style="display: none"></h3>
         <hr>
-        <h4>Passive Voice</h4>
+      </div>
+      <div id="simpleToComplexErrorsDiv" style="display: none">
+        <h3>Simple Sentences</h3>
         <div style="margin-left: 1rem">
-            <p>These sentences use passive voice.  Try to maintain an active voice, such as: 
-                <br/>
-                Charles <strong><em>ran</em></strong> on the field.
+            <p>These sentences can be combined to make cohesive, complex sentences.
             </p>
         </div>
-        <div id="errorsListDiv"></div>
+        <ul id="simpleToComplexErrorListDiv"></ul>
       </div>
+      
+      <div id="passiveHardReccDiv" style="display: none">
+        <h3>Passive Voice</h3>
+        <div style="margin-left: 1rem">
+            <p>You should change these sentences from the passive voice to the
+              active voice by moving the subject to appear before the object.
+            </p>
+        </div>
+        <ul id="passiveHardReccListDiv"></ul>
+      </div>
+
+      <div id="passiveSoftReccDiv" style="display: none">
+        <h3>Passive Voice</h3>
+        <div style="margin-left: 1rem">
+            <p>You may want to change this usage of the passive voice to the 
+              active voice.
+            </p>
+        </div>
+        <ul id="passiveSoftReccListDiv"></ul>
+      </div>
+
       <div id="noErrorsDiv" style="display: none">
         <p>No errors found.</p>
       </div>
@@ -97,9 +119,14 @@
       $("#resultsDiv").hide();
       $('#rescanBtnDiv').hide();
       $('#systemErrorDiv').hide();
-      $('#errorsFoundDiv').hide();
+      $('#simpleToComplexErrorsDiv').hide();
       $('#noErrorsDiv').hide();
-      $('#errorsListDiv').empty();
+      $('#errorsFoundMsg').hide();
+      $('#simpleToComplexErrorListDiv').empty();
+      $('#passiveHardReccListDiv').empty();
+      $('#passiveHardReccDiv').hide();
+      $('#passiveSoftReccListDiv').empty();
+      $('#passiveSoftReccDiv').hide();
 
       google.script.run
         .withSuccessHandler(renderResults)
@@ -116,41 +143,66 @@
    * Renders the suggestions returned from the server for the user.
    */
   function renderResults(results) {
-    if (results.length === 0) {
+    if (results.totalSuggestions === 0) {
       $('#noErrorsDiv').show();
     } else {
-      var errorsText = results.length === 1 ? 'One suggestion found' : results.length + ' suggestions found.';
+      var errorsText = results.totalSuggestions === 1 ? 'One suggestion found' : results.totalSuggestions + ' suggestions found.';
       $('#errorsFoundMsg').text(errorsText);
-      $('#errorsFoundDiv').show();
-      
-      for (let result of results) {
-        let beforeError = result.elementText.substring(0, result.startOffset);
-        let errorText = result.elementText.substring(
-          result.startOffset,
-          result.endOffset + 1);
-        let afterError = result.elementText.substring(result.endOffset + 1);
+      console.log(results);
 
-        let $errorTextNode = $("<strong></strong>").text(errorText);
-        let $resultNode = $("<div></div>");
-        $resultNode.append($("<p></p>").html(beforeError + $errorTextNode.prop('outerHTML') + afterError));
 
-        let $correctButton = $("<button></button").text('Correct');
-        $correctButton.data({
-          paragraphNum: result.paragraphNum,
-          startOffset: result.startOffset, 
-          endOffset: result.endOffset,
-          replaceText: 'cried'
-        });
-        $correctButton.click(correctError);
-        $resultNode.append($correctButton);
-        $correctButton.css('display', 'inline');
+      if (results.simpleToComplex.length > 0) {
+        for (let result of results.simpleToComplex) {
+          // let beforeError = result.elementText.substring(0, result.startOffset);
+          let errorText = result.elementText.substring(
+            result.startOffset,
+            result.endOffset + 1);
+          // let afterError = result.elementText.substring(result.endOffset + 1);
+          let $resultNode = $("<li></li>").text(errorText);
 
-        $('#errorsListDiv').append($resultNode);
+          // let $correctButton = $("<button></button").text('Correct');
+          // $correctButton.data({
+          //   paragraphNum: result.paragraphNum,
+          //   startOffset: result.startOffset, 
+          //   endOffset: result.endOffset,
+          //   replaceText: 'cried'
+          // });
+          // $correctButton.click(correctError);
+          // $resultNode.append($correctButton);
+          // $correctButton.css('display', 'inline');
+
+          $('#simpleToComplexErrorListDiv').append($resultNode);
+        }
+      }
+
+      if (results.passiveVoice.length > 0) {
+        for (let result of results.passiveVoice) {
+          $resultNode = $("<li></li>").text(result.Sentence);
+
+          if(result.HardRecc.length > 0) {
+            $('#passiveHardReccListDiv').append($resultNode);
+
+          } else {
+            $('#passiveSoftReccListDiv').append($resultNode);
+          }
+        }
       }
     }
     $('#scanningMsgDiv').hide();
     $('#resultsDiv').show();
     $('#rescanBtnDiv').show();
+
+    if ($('#simpleToComplexErrorListDiv').children().length > 0) {
+      $('#simpleToComplexErrorsDiv').show();
+    }
+
+    if ($('#passiveHardReccListDiv').children().length > 0) {
+      $('#passiveHardReccDiv').show();
+    }
+
+    if ($('#passiveSoftReccListDiv').children().length > 0) {
+      $('#passiveSoftReccDiv').show();
+    }
   }
 
   /**
