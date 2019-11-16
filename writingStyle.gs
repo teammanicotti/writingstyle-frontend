@@ -53,32 +53,103 @@ function showSidebar() {
  * Scans the document for possible writing errors.
  */
 function scanDocument() {
-  var document = DocumentApp.getActiveDocument();
-  // var header = document.getHeader(); // TODO
-  var body = document.getBody();
-  // var footer = document.getFooter(); // TODO
-  // var footnotes = document.getFootnotes(); // TODO
-  var paragraphs = body.getParagraphs();
-  var bodyText = paragraphs[0].editAsText(); // Hardcoding paragraph zero for now.
+    var document = DocumentApp.getActiveDocument();
+    // var header = document.getHeader(); // TODO
+    var body = document.getBody();
+    // var footer = document.getFooter(); // TODO
+    // var footnotes = document.getFootnotes(); // TODO
+    var paragraphs = body.getParagraphs();
+    var bodyText = paragraphs[0].editAsText(); // Hardcoding paragraph zero for now.
 
-
-  var simpleToComplexResult = simpleToComplexCheck(document);
-  var passiveVoiceResult = passiveVoiceCheck(document);
-
-  var response = {
-    totalSuggestions: simpleToComplexResult.length + passiveVoiceResult.length,
-    simpleToComplex: simpleToComplexResult,
-    passiveVoice: passiveVoiceResult
-  }
-
-  return response;
+    var recs = getRecommendationTest(document);
+    return UpdateRecommendationsList(recs);
 }
 
+
+/**
+ * Builds the html from results
+ * @param data
+ * @returns {string}
+ * @constructor
+ */
+function UpdateRecommendationsList(data){
+    var result = "";
+    var paragraphs = {};
+
+    console.log('hello');
+    data.forEach(function(rec) {
+        if(paragraphs[rec['paragraph_index']] === undefined){
+            paragraphs[rec['paragraph_index']] = "";
+        }
+        paragraphs[rec['paragraph_index']] += "<div class=recommendationCard>\n" +
+            " <div class=recHeader>\n" +
+            "   <div class=recHeaderText>" +
+            "     " + rec['recommendation_type'] + "\n" +
+            "     <div class=recSubTitle>" + rec['original_text'] + "</div>\n" +
+            "   </div>\n" +
+            "     <img id='thumbs_down' class=recIconThumb src=\"http://manicotti.se.rit.edu/thumbs-down.png\" alt=\"thumbs down\">\n" +
+            "     <img id='thumbs_up' class=recIconThumb src=\"http://manicotti.se.rit.edu/thumbs-up.png\" alt=\"thumbs up\">\n" +
+            "   </div>\n" +
+            "   <div class=recText>" + rec['new_values'][0] + "</div>\n" +
+            "</div>\n";
+    });
+    Object.keys(paragraphs).sort().forEach(function(paragraphNum){
+        result += "<div>\n" +
+            "<div class='pargraphLabel'>Paragraph: " + paragraphNum + "</div>\n" +
+            paragraphs[paragraphNum] +
+            "</div>\n"
+    });
+    return result;
+}
+
+/**
+ * Test Function that retrieves a json file
+ * @param document
+ * @returns {*[]}
+ */
+function getRecommendationTest(document) {
+    var results = [];
+    var reqUrl = "http://manicotti.se.rit.edu/test.json";
+
+    var options = {
+        'method': 'get',
+        'contentType': 'application/json',
+    };
+
+    var response = UrlFetchApp.fetch(reqUrl, options).getContentText();
+    var responseObj = JSON.parse(response);
+    results = results.concat(responseObj);
+    return results;
+}
+
+/**
+ * Send document text to the server & get json recommendations list
+ * @param document
+ */
+function getRecommendation(document) {
+    var text = DocumentApp.getActiveDocument().getBlob();
+
+
+}
+
+/**
+ * User accepted recommendation, change the document text.
+ * @param UID
+ */
+function implement_recommendation(UID) {
+    //Find the rec in the dictionary of recs
+    //Update the document text based on the rec data
+}
+
+
+/***
+ * Devons old stuff, not sure what to do with it
+ */
 function simpleToComplexCheck(document) {
   var results = [];
-  var scriptProperties = PropertiesService.getScriptProperties();
-  var reqUrl = scriptProperties.getProperty("simpleToComplexEndpoint");
-  var similarityThreshold = scriptProperties.getProperty("similarityThreshold");
+  // var scriptProperties = PropertiesService.getScriptProperties();
+  // var reqUrl = scriptProperties.getProperty("simpleToComplexEndpoint");
+  // var similarityThreshold = scriptProperties.getProperty("similarityThreshold");
 
   var paragraphs = document.getParagraphs();
   for (var i = 0; i < paragraphs.length; i++) {
@@ -113,8 +184,8 @@ function simpleToComplexCheck(document) {
  * @param bodyText the Text instance for the writing sample
  */
 function passiveVoiceCheck(document) {
-  var scriptProperties = PropertiesService.getScriptProperties();
-  var reqUrl = scriptProperties.getProperty("passiveVoiceEndpoint");
+  // var scriptProperties = PropertiesService.getScriptProperties();
+  // var reqUrl = scriptProperties.getProperty("passiveVoiceEndpoint");
   var results = []
 
   var reqBody = {

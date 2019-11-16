@@ -3,12 +3,14 @@
 
 <head>
   <base target="_top">
+    <!--<meta http-equiv="Content-Security-Policy" content="default-src none; script-src manicotti.se.rit.edu ajax.googleapis.com">-->
+    <!--<meta http-equiv="Content-Security-Policy" content="default-src *; style-src 'self' ssl.gstatic.com 'unsafe-inline'; script-src 'self' 'unsafe-inline' 'unsafe-eval' ajax.googleapis.com  manicotti.se.rit.edu">-->
   <link rel="stylesheet" href="https://ssl.gstatic.com/docs/script/css/add-ons1.css">
   <!-- The CSS package above applies Google styling to buttons and other elements. -->
 
   <style>
     .branding-below {
-      bottom: 56px;
+      bottom: 0px;
       top: 0;
     }
 
@@ -29,6 +31,7 @@
 
     .logo {
       vertical-align: middle;
+      vertical-align: middle;
     }
 
     .radio-spacer {
@@ -38,70 +41,105 @@
     .width-100 {
       width: 100%;
     }
+
+    .recommendationCard {
+        opacity: 0.8;
+        background: #1464f6;
+        border-radius: 15px;
+        padding: 15px;
+        text-align:left;
+        overflow: hidden;
+        margin-top: 5px;
+    }
+
+    .recommendationCard:hover {
+        opacity: 1;
+        box-shadow: 0 0 8px grey;
+        transition-duration: 150ms;
+        transition-property: box-shadow;
+    }
+
+    .pargraphLabel{
+      margin-top: 5px;
+      font: 15px arial;
+    }
+
+    .recHeader{
+        text-align: center;
+    }
+
+    .recHeaderText{
+        text-align:left;
+        color: white;
+        float:left;
+        font: 20px arial;
+        width: 70%;
+
+    }
+
+    .recIconThumb{
+        float:right;
+        width:20px;
+        height:20px;
+        margin-right: 2px;
+    }
+
+    .recIconThumb:hover{
+      width:22px;
+      height:22px;
+    }
+
+    .recText{
+        color: white;
+        float: left;
+        font: 12px arial;
+        padding-top: 5px;
+    }
+
+    .recSubTitle{
+        font-style: italic;
+    }
+
+    #analyzeBtn {
+      background: #616161;
+      border-radius: 15px;
+      padding: 10px;
+      text-align:center;
+      overflow: hidden;
+      margin-top: 5px;
+      font: 20px arial;
+      color: white;
+    }
+
+    #refreshPng{
+      height: 15px;
+      width: 15px;
+      filter: invert(100);
+      animation: spin 10s linear infinite;
+    }
+
+    #recommendations{
+      height:90%;
+      overflow: scroll;
+    }
+
+
   </style>
 </head>
 
 <body>
   <div class="sidebar branding-below">
-    <h2>Writing Style</h2>
-    <div id="scanningMsgDiv">
-      <div id="scanningMsg">Scanning document...</div>
+    <div id="recommendations">
+      <!--Recommendation cards load here -->
     </div>
-
-    <div id="resultsDiv" style="display: none">
-        <div id="systemErrorDiv" style="display: none">
-            <p id="systemErrorMsg">An error occurred scanning your document.</p>
-        </div>
-
-      <div>
-        <h3 id="errorsFoundMsg" style="display: none"></h3>
-        <hr>
-      </div>
-      <div id="simpleToComplexErrorsDiv" style="display: none">
-        <h3>Simple Sentences</h3>
-        <div style="margin-left: 1rem">
-            <p>These sentences can be combined to make cohesive, complex sentences.
-            </p>
-        </div>
-        <ul id="simpleToComplexErrorListDiv"></ul>
-      </div>
-      
-      <div id="passiveHardReccDiv" style="display: none">
-        <h3>Passive Voice</h3>
-        <div style="margin-left: 1rem">
-            <p>You should change these sentences from the passive voice to the
-              active voice by moving the subject to appear before the object.
-            </p>
-        </div>
-        <ul id="passiveHardReccListDiv"></ul>
-      </div>
-
-      <div id="passiveSoftReccDiv" style="display: none">
-        <h3>Passive Voice</h3>
-        <div style="margin-left: 1rem">
-            <p>You may want to change this usage of the passive voice to the 
-              active voice.
-            </p>
-        </div>
-        <ul id="passiveSoftReccListDiv"></ul>
-      </div>
-
-      <div id="noErrorsDiv" style="display: none">
-        <p>No errors found.</p>
-      </div>
-    </div>
-
-    <br/>
-    <div id="rescanBtnDiv" style="display: none">
-      <button id="rescanBtn">Re-scan Document</button>
+    <div id="analyzeBtn">
+      Analyze
+      <img id="refreshPng" src="https://img.icons8.com/windows/32/000000/refresh.png">
     </div>
   </div>
-
-  <div class="sidebar bottom">
-  </div>
-
-  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-  <script>
+</body>
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<script>
     /**
      * On document load, assign click handlers to each button and try to load the
      * user's origin and destination language preferences if previously set.
@@ -111,11 +149,28 @@
       scanDocument();
     });
 
+    $('#analyzeBtn').click(function () {
+        scanDocument();
+    });
+
+    $('#thumbs_up').click(function () {
+        //Get UID
+        //Call implement_recommendation(UID) in gs file
+        //Tell the server not to show that card any more
+        //Delete card
+    });
+
+    $('#thumbs_down').click(function () {
+        //Get UID
+        //ajax to API that the user hid that card(UID)
+        //Delete card
+    });
+
+
     /**
      * Request the server to scan the opened document.
      */ 
     function scanDocument() {
-      $('#scanningMsgDiv').show();
       $("#resultsDiv").hide();
       $('#rescanBtnDiv').hide();
       $('#systemErrorDiv').hide();
@@ -127,22 +182,37 @@
       $('#passiveHardReccDiv').hide();
       $('#passiveSoftReccListDiv').empty();
       $('#passiveSoftReccDiv').hide();
+      $('#refreshPng').show();
 
       google.script.run
-        .withSuccessHandler(renderResults)
-        .withFailureHandler(
-          function () {
-            $('#scanningMsgDiv').hide();
-            $('#systemErrorDiv').show();
-            $('#rescanBtnDov').show();
-          })
-        .scanDocument();
+            .withSuccessHandler(function (html) {
+                //scanDocument returns structured html, no just put it in the correct div
+                $('#recommendations').html(html);
+                $('#refreshPng').hide();
+            })
+            .withFailureHandler(
+                function (reason) {
+                    console.log("Failed to scan document because: " + reason);
+                    $('#refreshPng').hide();
+                    $('#systemErrorDiv').show();
+                    $('#rescanBtnDov').show();
+                }
+            )
+            .scanDocument();
     }
 
-  /**
-   * Renders the suggestions returned from the server for the user.
-   */
-  function renderResults(results) {
+
+
+
+
+
+
+
+    /**
+     * Renders the suggestions returned from the server for the user.
+     */
+    function renderResults(results) {
+      return "";
     if (results.totalSuggestions === 0) {
       $('#noErrorsDiv').show();
     } else {
@@ -222,7 +292,7 @@
         })
       .correctError(buttonPressed.data());
   }
-  </script>
-</body>
+</script>
+
 
 </html>
