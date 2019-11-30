@@ -81,14 +81,14 @@ function UpdateRecommendationsList(data){
         if(paragraphs[rec['paragraph_index']] === undefined){
             paragraphs[rec['paragraph_index']] = "";
         }
-        paragraphs[rec['paragraph_index']] += "<div class=recommendationCard>\n" +
+        paragraphs[rec['paragraph_index']] += "<div id=" + rec['UUID'] + " class='recommendationCard'>\n" +
             " <div class=recHeader>\n" +
             "   <div class=recHeaderText>" +
             "     " + rec['recommendation_type'] + "\n" +
             "     <div class=recSubTitle>" + rec['original_text'] + "</div>\n" +
             "   </div>\n" +
-            "     <img id='thumbs_down' class=recIconThumb src=\"http://manicotti.se.rit.edu/thumbs-down.png\" alt=\"thumbs down\">\n" +
-            "     <img id='thumbs_up' class=recIconThumb src=\"http://manicotti.se.rit.edu/thumbs-up.png\" alt=\"thumbs up\">\n" +
+            "     <img id='" + rec['UUID'] + "' class='recIconThumb thumbs_down' src=\"http://manicotti.se.rit.edu/thumbs-down.png\" alt=\"thumbs down\">\n" +
+            "     <img id='" + rec['UUID'] + "' class='recIconThumb thumbs_up' src=\"http://manicotti.se.rit.edu/thumbs-up.png\" alt=\"thumbs up\">\n" +
             "   </div>\n" +
             "   <div class=recText>" + rec['new_values'][0] + "</div>\n" +
             "</div>\n";
@@ -100,6 +100,18 @@ function UpdateRecommendationsList(data){
             "</div>\n"
     });
     return result;
+}
+
+
+function ThumbsUp(){
+    Logger.log("Thumbs Up clicked");
+    console.log("Thumbs Up clicked");
+}
+
+function ThumbsDown(){
+    Logger.log("Thumbs Down clicked");
+    console.log("Thumbs Down clicked");
+
 }
 
 /**

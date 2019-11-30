@@ -100,6 +100,7 @@
         font-style: italic;
     }
 
+
     #analyzeBtn {
       background: #616161;
       border-radius: 15px;
@@ -150,20 +151,42 @@
     });
 
     $('#analyzeBtn').click(function () {
+        console.log("Analyzing");
         scanDocument();
     });
 
-    $('#thumbs_up').click(function () {
+    $('#recommendations').on('click', '.thumbs_up', function() {
         //Get UID
         //Call implement_recommendation(UID) in gs file
         //Tell the server not to show that card any more
         //Delete card
+
+        google.script.run
+            .withSuccessHandler(function () {
+
+            })
+            .withFailureHandler(
+
+            )
+            .ThumbsUp(this.id);
+        $("#" + this.id + ".recommendationCard").remove()
+
     });
 
-    $('#thumbs_down').click(function () {
+    $('#recommendations').on('click', '.thumbs_down', function() {
         //Get UID
         //ajax to API that the user hid that card(UID)
         //Delete card
+        google.script.run
+            .withSuccessHandler(function (html) {
+
+            })
+            .withFailureHandler(
+
+            )
+            .ThumbsDown(this.id);
+
+        $("#" + this.id + ".recommendationCard").remove();
     });
 
 
