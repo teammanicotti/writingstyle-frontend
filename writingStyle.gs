@@ -62,6 +62,7 @@ function scanDocument() {
     var bodyText = paragraphs[0].editAsText(); // Hardcoding paragraph zero for now.
 
     var recs = getRecommendationTest(document);
+
     return UpdateRecommendationsList(recs);
 }
 
@@ -76,22 +77,31 @@ function UpdateRecommendationsList(data){
     var result = "";
     var paragraphs = {};
 
-    console.log('hello');
-    data.forEach(function(rec) {
-        if(paragraphs[rec['paragraph_index']] === undefined){
-            paragraphs[rec['paragraph_index']] = "";
+    var results = data[0].results;
+
+    if(data === undefined){
+        console.log("Data was not defined");
+        return
+    }
+    results.forEach(function(rec) {
+        var para_index = rec['paragraph_index'];
+        console.log("Paragraph index: " + para_index);
+        if(!(para_index in paragraphs)){
+            paragraphs[para_index] = ""
         }
-        paragraphs[rec['paragraph_index']] += "<div id=" + rec['UUID'] + " class='recommendationCard'>\n" +
-            " <div class=recHeader>\n" +
-            "   <div class=recHeaderText>" +
-            "     " + rec['recommendation_type'] + "\n" +
-            "     <div class=recSubTitle>" + rec['original_text'] + "</div>\n" +
-            "   </div>\n" +
-            "     <img id='" + rec['UUID'] + "' class='recIconThumb thumbs_down' src=\"http://manicotti.se.rit.edu/thumbs-down.png\" alt=\"thumbs down\">\n" +
-            "     <img id='" + rec['UUID'] + "' class='recIconThumb thumbs_up' src=\"http://manicotti.se.rit.edu/thumbs-up.png\" alt=\"thumbs up\">\n" +
-            "   </div>\n" +
-            "   <div class=recText>" + rec['new_values'][0] + "</div>\n" +
-            "</div>\n";
+        if(para_index in paragraphs) {
+            paragraphs[para_index] = paragraphs[para_index] + "<div id=" + rec['uuid'] + " class='recommendationCard'>\n" +
+                " <div class=recHeader>\n" +
+                "   <div class=recHeaderText>" +
+                "     " + GetUserFriendlyType(rec['recommendation_type']) + "\n" +
+                "     <div class=recSubTitle>" + rec['original_text'] + "</div>\n" +
+                "   </div>\n" +
+                "     <img id='" + rec['uuid'] + "' class='recIconThumb thumbs_down' src=\"http://manicotti.se.rit.edu/thumbs-down.png\" alt=\"thumbs down\">\n" +
+                "     <img id='" + rec['uuid'] + "' class='recIconThumb thumbs_up' src=\"http://manicotti.se.rit.edu/thumbs-up.png\" alt=\"thumbs up\">\n" +
+                "   </div>\n" +
+                "   <div class=recText>" +GetRecString(rec['recommendation_type']) + rec['new_values'][0] + "</div>\n" +
+                "</div>\n";
+        }
     });
     Object.keys(paragraphs).sort().forEach(function(paragraphNum){
         result += "<div>\n" +
@@ -101,6 +111,29 @@ function UpdateRecommendationsList(data){
     });
     return result;
 }
+
+function GetUserFriendlyType(type){
+    switch (type) {
+        case "SimpleToCompound":
+            return "Simple To Compound";
+        case "PassiveToActive":
+            return "Passive To Active";
+        case "SentimentReversal":
+            return "Sentiment Reversal";
+    }
+}
+
+function GetRecString(type){
+    switch (type) {
+        case "SimpleToCompound":
+            return "Consider changing to: ";
+        case "PassiveToActive":
+            return "Consider changing to: ";
+        case "SentimentReversal":
+            return "Consider changing to: ";
+    }
+}
+
 
 
 function ThumbsUp(){
@@ -121,16 +154,23 @@ function ThumbsDown(){
  */
 function getRecommendationTest(document) {
     var results = [];
-    var reqUrl = "http://manicotti.se.rit.edu/test.json";
+    var reqUrl = "http://bff53dca.ngrok.io/analyze";
+
+    var payload = {
+        "text": document.getBody().getText(),
+        "paragraphs": [document.getBody().getText()]
+    };
 
     var options = {
-        'method': 'get',
-        'contentType': 'application/json',
+        "method": "post",
+        "contentType": "application/json",
+        "payload" : JSON.stringify(payload)
     };
 
     var response = UrlFetchApp.fetch(reqUrl, options).getContentText();
     var responseObj = JSON.parse(response);
     results = results.concat(responseObj);
+
     return results;
 }
 
