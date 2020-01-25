@@ -17,8 +17,10 @@
  *     determine which authorization mode (ScriptApp.AuthMode) the trigger is
  *     running in, inspect e.authMode.
  */
+var cache = CacheService.getScriptCache();
+
 function onOpen(e) {
-  DocumentApp.getUi().createAddonMenu()
+    DocumentApp.getUi().createAddonMenu()
     .addItem('Start', 'showSidebar')
     .addToUi();
 }
@@ -84,23 +86,25 @@ function UpdateRecommendationsList(data){
         return
     }
     results.forEach(function(rec) {
-        var para_index = rec['paragraph_index'];
-        console.log("Paragraph index: " + para_index);
-        if(!(para_index in paragraphs)){
-            paragraphs[para_index] = ""
-        }
-        if(para_index in paragraphs) {
-            paragraphs[para_index] = paragraphs[para_index] + "<div id=" + rec['uuid'] + " class='recommendationCard'>\n" +
-                " <div class=recHeader>\n" +
-                "   <div class=recHeaderText>" +
-                "     " + GetUserFriendlyType(rec['recommendation_type']) + "\n" +
-                "     <div class=recSubTitle>" + rec['original_text'] + "</div>\n" +
-                "   </div>\n" +
-                "     <img id='" + rec['uuid'] + "' class='recIconThumb thumbs_down' src=\"http://manicotti.se.rit.edu/thumbs-down.png\" alt=\"thumbs down\">\n" +
-                "     <img id='" + rec['uuid'] + "' class='recIconThumb thumbs_up' src=\"http://manicotti.se.rit.edu/thumbs-up.png\" alt=\"thumbs up\">\n" +
-                "   </div>\n" +
-                "   <div class=recText>" +GetRecString(rec['recommendation_type']) + rec['new_values'][0] + "</div>\n" +
-                "</div>\n";
+        if(cache.get(rec['uuid']) !== 'hidden') { //If the user has not already accepted/rejected it
+            var para_index = rec['paragraph_index'];
+            console.log("Paragraph index: " + para_index);
+            if (!(para_index in paragraphs)) {
+                paragraphs[para_index] = ""
+            }
+            if (para_index in paragraphs) {
+                paragraphs[para_index] = paragraphs[para_index] + "<div id=" + rec['uuid'] + " class='recommendationCard'>\n" +
+                    " <div class=recHeader>\n" +
+                    "   <div class=recHeaderText>" +
+                    "     " + GetUserFriendlyType(rec['recommendation_type']) + "\n" +
+                    "     <div class=recSubTitle>" + rec['original_text'] + "</div>\n" +
+                    "   </div>\n" +
+                    "     <img id='" + rec['uuid'] + "' class='recIconThumb thumbs_down' src=\"http://manicotti.se.rit.edu/thumbs-down.png\" alt=\"thumbs down\">\n" +
+                    "     <img id='" + rec['uuid'] + "' class='recIconThumb thumbs_up' src=\"http://manicotti.se.rit.edu/thumbs-up.png\" alt=\"thumbs up\">\n" +
+                    "   </div>\n" +
+                    "   <div class=recText>" + GetRecString(rec['recommendation_type']) + rec['new_values'][0] + "</div>\n" +
+                    "</div>\n";
+            }
         }
     });
     Object.keys(paragraphs).sort().forEach(function(paragraphNum){
@@ -136,15 +140,13 @@ function GetRecString(type){
 
 
 
-function ThumbsUp(){
-    Logger.log("Thumbs Up clicked");
-    console.log("Thumbs Up clicked");
+function ThumbsUp(uuid){
+    cache.put(uuid, 'hidden');
+
 }
 
-function ThumbsDown(){
-    Logger.log("Thumbs Down clicked");
-    console.log("Thumbs Down clicked");
-
+function ThumbsDown(uuid){
+    cache.put(uuid, 'hidden');
 }
 
 /**
@@ -154,7 +156,7 @@ function ThumbsDown(){
  */
 function getRecommendationTest(document) {
     var results = [];
-    var reqUrl = "http://bff53dca.ngrok.io/analyze";
+    var reqUrl = "https://d43d4d7b.ngrok.io/analyze";
 
     var payload = {
         "text": document.getBody().getText(),
