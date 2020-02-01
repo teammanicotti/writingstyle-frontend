@@ -1,3 +1,11 @@
+var reqUrl = "https://manicotti.se.rit.edu";
+var ananlyze_url_path = "/analyze";
+var rec_ack_path = "/recAck";
+var PurgeInterval = 10;
+
+var analyzationsSinceLastPurge = 0;
+var activeFileID = DocumentApp.getActiveDocument().getId();
+
 /**
  * @OnlyCurrentDoc
  *
@@ -17,8 +25,6 @@
  *     determine which authorization mode (ScriptApp.AuthMode) the trigger is
  *     running in, inspect e.authMode.
  */
-var cache = CacheService.getScriptCache();
-
 function onOpen(e) {
     DocumentApp.getUi().createAddonMenu()
     .addItem('Start', 'showSidebar')
@@ -46,47 +52,46 @@ function onInstall(e) {
  * the mobile add-on version.
  */
 function showSidebar() {
-  var ui = HtmlService.createHtmlOutputFromFile('sidebar')
-    .setTitle('Writing Style');
-  DocumentApp.getUi().showSidebar(ui);
+    var ui = HtmlService.createHtmlOutputFromFile('sidebar')
+        .setTitle('Writing Style');
+    DocumentApp.getUi().showSidebar(ui);
 }
 
 /**
  * Scans the document for possible writing errors.
  */
-function scanDocument() {
+function scanDocument(hiddenItems) {
     var document = DocumentApp.getActiveDocument();
-    // var header = document.getHeader(); // TODO
-    var body = document.getBody();
-    // var footer = document.getFooter(); // TODO
-    // var footnotes = document.getFootnotes(); // TODO
-    var paragraphs = body.getParagraphs();
-    var bodyText = paragraphs[0].editAsText(); // Hardcoding paragraph zero for now.
+    var recs = getRecommendation(document);
 
-    var recs = getRecommendationTest(document);
-
-    return UpdateRecommendationsList(recs);
+    return UpdateRecommendationsList(recs, hiddenItems);
 }
 
+function getDocumentID() {
+    return DocumentApp.getActiveDocument().getId();
+}
 
 /**
  * Builds the html from results
  * @param data
+ * @param hiddenItems - stringified list of hidden element ids
  * @returns {string}
  * @constructor
  */
-function UpdateRecommendationsList(data){
-    var result = "";
+function UpdateRecommendationsList(data, hiddenItems){
+    var html = "";
     var paragraphs = {};
-
+    var mostRecentRecs = [];
     var results = data[0].results;
 
     if(data === undefined){
         console.log("Data was not defined");
         return
     }
+    Logger.log(hiddenItems);
     results.forEach(function(rec) {
-        if(cache.get(rec['uuid']) !== 'hidden') { //If the user has not already accepted/rejected it
+        mostRecentRecs.push(rec['uuid']);
+        if(hiddenItems === null || hiddenItems.toString().indexOf(rec['uuid']) === -1){ //If the user has not already accepted/rejected it
             var para_index = rec['paragraph_index'];
             console.log("Paragraph index: " + para_index);
             if (!(para_index in paragraphs)) {
@@ -108,12 +113,16 @@ function UpdateRecommendationsList(data){
         }
     });
     Object.keys(paragraphs).sort().forEach(function(paragraphNum){
-        result += "<div>\n" +
+        html += "<div>\n" +
             "<div class='pargraphLabel'>Paragraph: " + paragraphNum + "</div>\n" +
             paragraphs[paragraphNum] +
             "</div>\n"
     });
-    return result;
+
+    //Find items currently in the doc and known to be hidden
+    var newCache = calculate_new_hidden_cache(mostRecentRecs, hiddenItems);
+
+    return [html, newCache];
 }
 
 function GetUserFriendlyType(type){
@@ -139,14 +148,9 @@ function GetRecString(type){
 }
 
 
-
-function ThumbsUp(uuid){
-    cache.put(uuid, 'hidden');
-
-}
-
-function ThumbsDown(uuid){
-    cache.put(uuid, 'hidden');
+function ThumbsClicked(uuid, accepted){
+    var options = {"method": "get"};
+    UrlFetchApp.fetch(reqUrl + rec_ack_path + (accepted ? "?accepted=true" : "?accepted=false"), options).getContentText();
 }
 
 /**
@@ -154,9 +158,8 @@ function ThumbsDown(uuid){
  * @param document
  * @returns {*[]}
  */
-function getRecommendationTest(document) {
+function getRecommendation(document) {
     var results = [];
-    var reqUrl = "https://d43d4d7b.ngrok.io/analyze";
 
     var payload = {
         "text": document.getBody().getText(),
@@ -169,105 +172,22 @@ function getRecommendationTest(document) {
         "payload" : JSON.stringify(payload)
     };
 
-    var response = UrlFetchApp.fetch(reqUrl, options).getContentText();
+    var response = UrlFetchApp.fetch(reqUrl + ananlyze_url_path, options).getContentText();
     var responseObj = JSON.parse(response);
     results = results.concat(responseObj);
 
     return results;
 }
 
-/**
- * Send document text to the server & get json recommendations list
- * @param document
- */
-function getRecommendation(document) {
-    var text = DocumentApp.getActiveDocument().getBlob();
-
-
-}
-
-/**
- * User accepted recommendation, change the document text.
- * @param UID
- */
-function implement_recommendation(UID) {
-    //Find the rec in the dictionary of recs
-    //Update the document text based on the rec data
-}
-
-
-/***
- * Devons old stuff, not sure what to do with it
- */
-function simpleToComplexCheck(document) {
-  var results = [];
-  // var scriptProperties = PropertiesService.getScriptProperties();
-  // var reqUrl = scriptProperties.getProperty("simpleToComplexEndpoint");
-  // var similarityThreshold = scriptProperties.getProperty("similarityThreshold");
-
-  var paragraphs = document.getParagraphs();
-  for (var i = 0; i < paragraphs.length; i++) {
-    var paragraph = paragraphs[i];
-    var startChar = document.newPosition(paragraph, 0).getOffset();
-    var reqBody = {
-      text: paragraph.getText(),
-      paragraph_num: i,
-      paragraph_start_char: startChar,
-      threshold: similarityThreshold,
-      gSuite: true
-    };
-
-    var options = {
-      'method': 'post',
-      'contentType': 'application/json',
-      'payload': JSON.stringify(reqBody)
-    };
-
-    var response = UrlFetchApp.fetch(reqUrl, options).getContentText();
-    var responseObj = JSON.parse(response);
-    
-    results = results.concat(responseObj);
-  }
-  
-  Logger.log(results);
-  return results;
-}
-
-/**
- * Performs a dummy check for passive voice in the text sample.
- * @param bodyText the Text instance for the writing sample
- */
-function passiveVoiceCheck(document) {
-  // var scriptProperties = PropertiesService.getScriptProperties();
-  // var reqUrl = scriptProperties.getProperty("passiveVoiceEndpoint");
-  var results = []
-
-  var reqBody = {
-    text: document.getBody().getText()
-  };
-
-  var options = {
-    'method': 'post',
-    'contentType': 'application/json',
-    'payload': JSON.stringify(reqBody)
-  };
-
-  var response = UrlFetchApp.fetch(reqUrl, options).getContentText();
-  var responseObj = JSON.parse(response);
-  results = results.concat(responseObj['results']);
-  
-  return results;
-}
-
-/**
- * Performs the provided correction on the writing sample.
- * @param correctionObj object containing the paragraph, start and stop offsets,
- * and the correction to make
- */
-function correctError(correctionObj) {
-  var paragraphs = DocumentApp.getActiveDocument().getBody().getParagraphs();
-  var paragraph = paragraphs[correctionObj.paragraphNum];
-  var paragraphText = paragraph.editAsText()
-  paragraphText.deleteText(correctionObj.startOffset, correctionObj.endOffset);
-  paragraphText.insertText(correctionObj.startOffset, correctionObj.replaceText);
+function calculate_new_hidden_cache(mostRecentRecs, oldRecs) {
+    var newCache = [];
+    if(oldRecs !== null) {
+        var oldRecsStr = oldRecs.toString();
+        mostRecentRecs.forEach(function (entry) {
+            if (oldRecsStr.indexOf(entry) > -1) {
+                newCache.push(entry);
+            }
+        });
+    }
+    return newCache;
 }

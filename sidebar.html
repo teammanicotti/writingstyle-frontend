@@ -145,15 +145,11 @@
     </div>
   </div>
 </body>
-<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<script src="//ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
 <script>
-    /**
-     * On document load, assign click handlers to each button and try to load the
-     * user's origin and destination language preferences if previously set.
-     */
-    $(function () {
-      $('#rescanBtn').click(scanDocument);
-      scanDocument();
+    $(document).ready(function () {
+        console.log("Analyzing");
+        scanDocument();
     });
 
     $('#analyzeBtn').click(function () {
@@ -162,165 +158,96 @@
     });
 
     $('#recommendations').on('click', '.thumbs_up', function() {
-        //Get UID
-        //Call implement_recommendation(UID) in gs file
-        //Tell the server not to show that card any more
-        //Delete card
-
-        google.script.run
-            .withSuccessHandler(function () {
-
-            })
-            .withFailureHandler(
-
-            )
-            .ThumbsUp(this.id);
-        $("#" + this.id + ".recommendationCard").remove()
-
+        thumbClicked(this.id, true);
     });
 
     $('#recommendations').on('click', '.thumbs_down', function() {
-        //Get UID
-        //ajax to API that the user hid that card(UID)
-        //Delete card
-        google.script.run
-            .withSuccessHandler(function (html) {
+        thumbClicked(this.id, false);
 
-            })
-            .withFailureHandler(
-
-            )
-            .ThumbsDown(this.id);
-
-        $("#" + this.id + ".recommendationCard").remove();
     });
 
+    function thumbClicked(recID, accepted){
+        $("#" + recID+ ".recommendationCard").remove();//Delete card
+        google.script.run
+            .withSuccessHandler(function (docID) {
+                if(docID === null) {
+                    console.log("Failed to obtain document id");
+                }
+                else {
+                    google.script.run         //ajax to API that the user hid that card(UID)
+                        .withSuccessHandler()
+                        .withFailureHandler()
+                        .ThumbsClicked(recID, accepted);
+
+                    var hiddenRecs = localStorage.getItem(docID);
+                    console.log("Hidden recs: " +hiddenRecs);
+                    if (hiddenRecs === null || hiddenRecs === "") {
+                        let newEntry = {"hidden": [recID.toString()]};
+                        localStorage.setItem(docID, JSON.stringify(newEntry))
+                    }
+                    else {
+                        let hiddenEntries = JSON.parse(hiddenRecs);
+                        //hiddenEntries should be an object structured: {"hidden":[hidden1, hidden2,...]}
+                        hiddenEntries["hidden"].push(recID.toString());
+                        localStorage.setItem(docID, JSON.stringify(hiddenEntries))
+                    }
+                }
+            })
+            .withFailureHandler({})
+            .getDocumentID();
+    }
 
     /**
      * Request the server to scan the opened document.
-     */ 
-    function scanDocument() {
-      $("#resultsDiv").hide();
-      $('#rescanBtnDiv').hide();
-      $('#systemErrorDiv').hide();
-      $('#simpleToComplexErrorsDiv').hide();
-      $('#noErrorsDiv').hide();
-      $('#errorsFoundMsg').hide();
-      $('#simpleToComplexErrorListDiv').empty();
-      $('#passiveHardReccListDiv').empty();
-      $('#passiveHardReccDiv').hide();
-      $('#passiveSoftReccListDiv').empty();
-      $('#passiveSoftReccDiv').hide();
-      $('#refreshPng').show();
-
-      google.script.run
-            .withSuccessHandler(function (html) {
-                //scanDocument returns structured html, no just put it in the correct div
-                $('#recommendations').html(html);
-                $('#refreshPng').hide();
-            })
-            .withFailureHandler(
-                function (reason) {
-                    console.log("Failed to scan document because: " + reason);
-                    $('#refreshPng').hide();
-                    $('#systemErrorDiv').show();
-                    $('#rescanBtnDov').show();
-                }
-            )
-            .scanDocument();
-    }
-
-
-
-
-
-
-
-
-    /**
-     * Renders the suggestions returned from the server for the user.
      */
-    function renderResults(results) {
-      return "";
-    if (results.totalSuggestions === 0) {
-      $('#noErrorsDiv').show();
-    } else {
-      var errorsText = results.totalSuggestions === 1 ? 'One suggestion found' : results.totalSuggestions + ' suggestions found.';
-      $('#errorsFoundMsg').text(errorsText);
-      console.log(results);
+    function scanDocument() {
+        $("#resultsDiv").hide();
+        $('#systemErrorDiv').hide();
+        $('#simpleToComplexErrorsDiv').hide();
+        $('#noErrorsDiv').hide();
+        $('#errorsFoundMsg').hide();
+        $('#simpleToComplexErrorListDiv').empty();
+        $('#passiveHardReccListDiv').empty();
+        $('#passiveHardReccDiv').hide();
+        $('#passiveSoftReccListDiv').empty();
+        $('#passiveSoftReccDiv').hide();
+        $('#refreshPng').show();
 
+        google.script.run
+            .withSuccessHandler(function (docID) {
+                if(docID === null) {
+                    console.log("Failed to obtain document id");
+                }
+                else {
+                    var hiddenStore = localStorage.getItem(docID);
+                    var hiddenVals = hiddenStore !== null ? JSON.parse(hiddenStore) : null;
+                    google.script.run
+                        .withSuccessHandler(function (result) { //result = [html, newCache]
+                            //scanDocument returns structured html, no just put it in the correct div
+                            $('#recommendations').html(result[0]);
+                            $('#refreshPng').hide();
+                            if(result[1].length > 0) { //Update with the calculated diff of hidden items
+                                localStorage.setItem(docID, JSON.stringify({"hidden":result[1]}))
+                            }
+                            else //We should not be hiding anything, delete out local store
+                            {
+                                localStorage.removeItem(docID);
+                            }
+                        })
+                        .withFailureHandler(
+                            function (reason) {
+                                console.log("Failed to scan document because: " + reason);
+                                $('#refreshPng').hide();
+                                $('#systemErrorDiv').show();
+                            }
+                        )
+                        .scanDocument(hiddenVals === null ? null : hiddenVals["hidden"]);
+                }
+            })
+            .withFailureHandler({})
+            .getDocumentID();
 
-      if (results.simpleToComplex.length > 0) {
-        for (let result of results.simpleToComplex) {
-          // let beforeError = result.elementText.substring(0, result.startOffset);
-          let errorText = result.elementText.substring(
-            result.startOffset,
-            result.endOffset + 1);
-          // let afterError = result.elementText.substring(result.endOffset + 1);
-          let $resultNode = $("<li></li>").text(errorText);
-
-          // let $correctButton = $("<button></button").text('Correct');
-          // $correctButton.data({
-          //   paragraphNum: result.paragraphNum,
-          //   startOffset: result.startOffset, 
-          //   endOffset: result.endOffset,
-          //   replaceText: 'cried'
-          // });
-          // $correctButton.click(correctError);
-          // $resultNode.append($correctButton);
-          // $correctButton.css('display', 'inline');
-
-          $('#simpleToComplexErrorListDiv').append($resultNode);
-        }
-      }
-
-      if (results.passiveVoice.length > 0) {
-        for (let result of results.passiveVoice) {
-          $resultNode = $("<li></li>").text(result.Sentence);
-
-          if(result.HardRecc.length > 0) {
-            $('#passiveHardReccListDiv').append($resultNode);
-
-          } else {
-            $('#passiveSoftReccListDiv').append($resultNode);
-          }
-        }
-      }
     }
-    $('#scanningMsgDiv').hide();
-    $('#resultsDiv').show();
-    $('#rescanBtnDiv').show();
-
-    if ($('#simpleToComplexErrorListDiv').children().length > 0) {
-      $('#simpleToComplexErrorsDiv').show();
-    }
-
-    if ($('#passiveHardReccListDiv').children().length > 0) {
-      $('#passiveHardReccDiv').show();
-    }
-
-    if ($('#passiveSoftReccListDiv').children().length > 0) {
-      $('#passiveSoftReccDiv').show();
-    }
-  }
-
-  /**
-   * Requests the selected suggestion to be made to the document.
-   * @param suggestionButton the 'Correct' button for a given suggestion
-   */
-  function correctError (suggestionButton) {
-      var buttonPressed = $(suggestionButton.target);
-
-      buttonPressed.prop('disabled', true);
-      buttonPressed.text('Correcting...');
-
-      google.script.run
-      .withSuccessHandler(
-        function () {
-          buttonPressed.text('Corrected');
-        })
-      .correctError(buttonPressed.data());
-  }
 </script>
 
 
