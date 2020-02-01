@@ -113,6 +113,38 @@
       cursor: default;
     }
 
+    #options {
+      background: #616161;
+      text-align:left;
+      overflow: hidden;
+      font: 15px arial;
+      color: white;
+      cursor: default;
+      border-style: solid;
+      border-width: 1px;
+      border-radius: 5px;
+      padding: 5px;
+    }
+
+    #optionsBtn {
+      color: white;
+      cursor: default;
+    }
+
+    #clearHidden {
+      background: #1464f6;
+      border-radius: 5px;
+      text-align:center;
+      overflow: hidden;
+      padding: 5px;
+      font: 15px arial;
+      color: white;
+      cursor: default;
+      width: 90%;
+      display: none;
+      margin: auto;
+    }
+
     #refreshPng{
       height: 15px;
       width: 15px;
@@ -136,6 +168,12 @@
 
 <body>
   <div class="sidebar branding-below">
+    <div id="options">
+      <div id="optionsBtn">Options</div>
+      <div id="clearHidden">
+        Clear Hidden Items
+      </div>
+    </div>
     <div id="recommendations">
       <!--Recommendation cards load here -->
     </div>
@@ -147,9 +185,60 @@
 </body>
 <script src="//ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
 <script>
+    var undo_items = [];
+    var redo_items = [];
+
     $(document).ready(function () {
         console.log("Analyzing");
         scanDocument();
+    });
+
+    $(document).keydown(function (e) {
+        console.log("Key press: " + e.which);
+        if( e.which === 90 && e.metaKey && e.shiftKey ){
+            Redo();
+        }
+        else if( e.which === 90 && e.metaKey){
+            Undo();
+        }
+    });
+
+    function Undo(){
+      //TODO
+    }
+
+    function Redo(){
+      //TODO
+    }
+
+    $('#optionsBtn').click(function () {
+        SetOptionsVisible(!($('#clearHidden').css("display") ===  "block"));
+    });
+
+    function SetOptionsVisible(visible){
+        if(visible){
+            $('#clearHidden').css("display", "block");
+        }
+        else{
+            $('#clearHidden').css("display", "none");
+        }
+        $('#recommendations').css("height", "90%");
+    }
+
+    $('#clearHidden').click(function () {
+        google.script.run
+            .withSuccessHandler(function (docID) {
+                if(docID === null) {
+                    console.log("Failed to obtain document id");
+                }
+                else {
+                    localStorage.removeItem(docID);
+                    SetOptionsVisible(false);
+                    scanDocument();
+                }
+            })
+            .withFailureHandler({})
+            .getDocumentID();
     });
 
     $('#analyzeBtn').click(function () {
@@ -163,7 +252,6 @@
 
     $('#recommendations').on('click', '.thumbs_down', function() {
         thumbClicked(this.id, false);
-
     });
 
     function thumbClicked(recID, accepted){
