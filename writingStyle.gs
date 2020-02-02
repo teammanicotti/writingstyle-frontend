@@ -1,6 +1,5 @@
-var reqUrl = "https://manicotti.se.rit.edu";
-var ananlyze_url_path = "/analyze";
-var rec_ack_path = "/recAck";
+var analyze_url_path = PropertiesService.getScriptProperties().getProperty("apiHost") + "/analyze";
+var rec_ack_path = PropertiesService.getScriptProperties().getProperty("apiHost") + "/recAck";
 var PurgeInterval = 10;
 
 var analyzationsSinceLastPurge = 0;
@@ -150,7 +149,7 @@ function GetRecString(type){
 
 function ThumbsClicked(uuid, accepted){
     var options = {"method": "get"};
-    UrlFetchApp.fetch(reqUrl + rec_ack_path + (accepted ? "?accepted=true" : "?accepted=false"), options).getContentText();
+    UrlFetchApp.fetch(rec_ack_path + (accepted ? "?accepted=true" : "?accepted=false"), options).getContentText();
 }
 
 /**
@@ -177,8 +176,7 @@ function getRecommendation(document) {
         "payload" : JSON.stringify(payload)
     };
 
-    Logger.log("recommendationRequest: " + JSON.stringify(payload));
-    var response = UrlFetchApp.fetch(reqUrl + ananlyze_url_path, options).getContentText();
+    var response = UrlFetchApp.fetch(analyze_url_path, options).getContentText();
     var responseObj = JSON.parse(response);
     results = results.concat(responseObj);
 
