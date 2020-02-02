@@ -132,6 +132,12 @@ function GetUserFriendlyType(type){
             return "Passive To Active";
         case "SentimentReversal":
             return "Sentiment Reversal";
+        case "Comparative":
+            return "Comparative";
+        case "Superlative":
+            return "Superlative";
+        case "DirectIndirectObjectChecking":
+            return "Direct/Indirect Objects";
     }
 }
 
@@ -142,6 +148,12 @@ function GetRecString(type){
         case "PassiveToActive":
             return "Consider changing to: ";
         case "SentimentReversal":
+            return "Consider changing to: ";
+        case "Comparative":
+            return "Consider changing to: ";
+        case "Superlative":
+            return "Consider changing to: ";
+        case "DirectIndirectObjectChecking":
             return "Consider changing to: ";
     }
 }
