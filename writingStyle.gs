@@ -160,10 +160,15 @@ function ThumbsClicked(uuid, accepted){
  */
 function getRecommendation(document) {
     var results = [];
+    var paragraphs = document.getBody().getParagraphs();
+    var paragraph_text = [];
+    for (var i = 0; i < paragraphs.length; i++) {
+      paragraph_text.push(paragraphs[i].getText());
+    }
 
     var payload = {
         "text": document.getBody().getText(),
-        "paragraphs": [document.getBody().getText()]
+        "paragraphs": paragraph_text
     };
 
     var options = {
@@ -172,6 +177,7 @@ function getRecommendation(document) {
         "payload" : JSON.stringify(payload)
     };
 
+    Logger.log("recommendationRequest: " + JSON.stringify(payload));
     var response = UrlFetchApp.fetch(reqUrl + ananlyze_url_path, options).getContentText();
     var responseObj = JSON.parse(response);
     results = results.concat(responseObj);
