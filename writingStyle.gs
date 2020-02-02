@@ -1,5 +1,6 @@
 var analyze_url_path = PropertiesService.getScriptProperties().getProperty("apiHost") + "/analyze";
 var rec_ack_path = PropertiesService.getScriptProperties().getProperty("apiHost") + "/recAck";
+var similarityThreshold = parseFloat(PropertiesService.getScriptProperties().getProperty("similarityThreshold"));
 var PurgeInterval = 10;
 
 var analyzationsSinceLastPurge = 0;
@@ -179,7 +180,8 @@ function getRecommendation(document) {
 
     var payload = {
         "text": document.getBody().getText(),
-        "paragraphs": paragraph_text
+        "paragraphs": paragraph_text,
+        "similarityThreshold": similarityThreshold
     };
 
     var options = {
@@ -188,9 +190,11 @@ function getRecommendation(document) {
         "payload" : JSON.stringify(payload)
     };
 
+    Logger.log("recommendationRequest: " + JSON.stringify(payload));
     var response = UrlFetchApp.fetch(analyze_url_path, options).getContentText();
     var responseObj = JSON.parse(response);
     results = results.concat(responseObj);
+    Logger.log("recommendationResponse: " + response);
 
     return results;
 }
