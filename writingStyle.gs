@@ -5,7 +5,7 @@ var PurgeInterval = 10;
 
 var analyzationsSinceLastPurge = 0;
 var activeFileID = DocumentApp.getActiveDocument().getId();
-
+var cache = CacheService.getDocumentCache();
 /**
  * @OnlyCurrentDoc
  *
@@ -29,6 +29,16 @@ function onOpen(e) {
     DocumentApp.getUi().createAddonMenu()
     .addItem('Start', 'showSidebar')
     .addToUi();
+}
+
+function onClose(e) {
+    var body = DocumentApp.getActiveDocument().getBody();
+    var text = body.editAsText();
+    var rangeObj = body.findText(".*");
+
+    if(rangeObj !== null){
+        text.setBackgroundColor(rangeObj.getStartOffset(), rangeObj.getEndOffsetInclusive(), '#ffffff')
+    }
 }
 
 /**
@@ -88,7 +98,17 @@ function UpdateRecommendationsList(data, hiddenItems){
         console.log("Data was not defined");
         return
     }
-    Logger.log(hiddenItems);
+    var body = DocumentApp.getActiveDocument().getBody();
+    var text = body.editAsText();
+    var rangeObj = body.findText(".*");
+
+    if(rangeObj !== null){
+        text.setBackgroundColor(rangeObj.getStartOffset(), rangeObj.getEndOffsetInclusive(), '#ffffff')
+    }
+
+
+    cache.put("current_recs", JSON.stringify(results));
+
     results.forEach(function(rec) {
         mostRecentRecs.push(rec['uuid']);
         if(hiddenItems === null || hiddenItems.toString().indexOf(rec['uuid']) === -1){ //If the user has not already accepted/rejected it
@@ -109,6 +129,8 @@ function UpdateRecommendationsList(data, hiddenItems){
                     "   </div>\n" +
                     "   <div class=recText>" + GetRecString(rec['recommendation_type']) + rec['new_values'][0] + "</div>\n" +
                     "</div>\n";
+
+                HighlightText(rec['original_text'], '#f69e42')
             }
         }
     });
@@ -123,6 +145,16 @@ function UpdateRecommendationsList(data, hiddenItems){
     var newCache = calculate_new_hidden_cache(mostRecentRecs, hiddenItems);
 
     return [html, newCache];
+}
+
+function HighlightText(stringText, color) {
+    var body = DocumentApp.getActiveDocument().getBody();
+    var text = body.editAsText();
+    var rangeObj = body.findText(stringText);
+
+    if(rangeObj !== null){
+        text.setBackgroundColor(rangeObj.getStartOffset(), rangeObj.getEndOffsetInclusive(), color)
+    }
 }
 
 function GetUserFriendlyType(type){
@@ -147,10 +179,45 @@ function GetRecString(type){
     }
 }
 
+function DoSubstitution(recID){
+    var currentRecommendations = JSON.parse(cache.get("current_recs"));
+
+    if(currentRecommendations !== null) {
+        currentRecommendations.forEach(function (rec) {
+            if (recID === rec['uuid']) {
+                var body = DocumentApp.getActiveDocument().getBody();
+                HighlightText(rec['original_text'], '#ffffff')
+                body.replaceText(rec['original_text'], rec['new_values'][0]);
+                return;
+            }
+        });
+    }
+    else {
+        Logger.log("Current recommendations list is null");
+    }
+}
+
+function UndoHighlighting(recID) {
+    var currentRecommendations = JSON.parse(cache.get("current_recs"));
+
+    if(currentRecommendations !== null) {
+        currentRecommendations.forEach(function (rec) {
+            if (recID === rec['uuid']) {
+                var body = DocumentApp.getActiveDocument().getBody();
+                HighlightText(rec['original_text'], '#ffffff')
+                return;
+            }
+        });
+    }
+    else {
+        Logger.log("Current recommendations list is null");
+    }
+}
+
 
 function ThumbsClicked(uuid, accepted){
     var options = {"method": "get"};
-    UrlFetchApp.fetch(reqUrl + rec_ack_path + (accepted ? "?accepted=true" : "?accepted=false"), options).getContentText();
+    //UrlFetchApp.fetch(reqUrl + rec_ack_path + (accepted ? "?accepted=true" : "?accepted=false"), options).getContentText();
 }
 
 /**

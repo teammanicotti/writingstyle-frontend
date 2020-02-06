@@ -60,7 +60,7 @@
     }
 
     .pargraphLabel{
-      margin-top: 5px;
+      margin-top: 0px;
       font: 15px arial;
     }
 
@@ -114,21 +114,16 @@
     }
 
     #options {
-      background: #616161;
-      text-align:left;
+      background: white;
+      text-align:right;
       overflow: hidden;
-      font: 15px arial;
-      color: white;
       cursor: default;
-      border-style: solid;
-      border-width: 1px;
-      border-radius: 5px;
-      padding: 5px;
+      height: 35px;
     }
 
-    #optionsBtn {
-      color: white;
-      cursor: default;
+    #settings_icon {
+      height: 35px;
+      width: 35px;
     }
 
     #clearHidden {
@@ -169,7 +164,7 @@
 <body>
   <div class="sidebar branding-below">
     <div id="options">
-      <div id="optionsBtn">Options</div>
+      <img id='settings_icon' src="http://manicotti.se.rit.edu/settings.png" alt="settings">
       <div id="clearHidden">
         Clear Hidden Items
       </div>
@@ -211,7 +206,7 @@
       //TODO
     }
 
-    $('#optionsBtn').click(function () {
+    $('#settings_icon').click(function () {
         SetOptionsVisible(!($('#clearHidden').css("display") ===  "block"));
     });
 
@@ -256,6 +251,18 @@
 
     function thumbClicked(recID, accepted){
         $("#" + recID+ ".recommendationCard").remove();//Delete card
+        if(accepted) {
+            google.script.run
+                .withSuccessHandler()
+                .withFailureHandler()
+                .DoSubstitution(recID);
+        }
+        else{
+            google.script.run
+                .withSuccessHandler()
+                .withFailureHandler()
+                .UndoHighlighting(recID);
+        }
         google.script.run
             .withSuccessHandler(function (docID) {
                 if(docID === null) {
@@ -284,6 +291,7 @@
             .withFailureHandler({})
             .getDocumentID();
     }
+
 
     /**
      * Request the server to scan the opened document.
