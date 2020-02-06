@@ -1,6 +1,6 @@
-var reqUrl = "https://manicotti.se.rit.edu";
-var ananlyze_url_path = "/analyze";
-var rec_ack_path = "/recAck";
+var analyze_url_path = PropertiesService.getScriptProperties().getProperty("apiHost") + "/analyze";
+var rec_ack_path = PropertiesService.getScriptProperties().getProperty("apiHost") + "/recAck";
+var similarityThreshold = parseFloat(PropertiesService.getScriptProperties().getProperty("similarityThreshold"));
 var PurgeInterval = 10;
 
 var analyzationsSinceLastPurge = 0;
@@ -165,6 +165,12 @@ function GetUserFriendlyType(type){
             return "Passive To Active";
         case "SentimentReversal":
             return "Sentiment Reversal";
+        case "Comparative":
+            return "Comparative";
+        case "Superlative":
+            return "Superlative";
+        case "DirectIndirectObjectChecking":
+            return "Direct/Indirect Objects";
     }
 }
 
@@ -175,6 +181,12 @@ function GetRecString(type){
         case "PassiveToActive":
             return "Consider changing to: ";
         case "SentimentReversal":
+            return "Consider changing to: ";
+        case "Comparative":
+            return "Consider changing to: ";
+        case "Superlative":
+            return "Consider changing to: ";
+        case "DirectIndirectObjectChecking":
             return "Consider changing to: ";
     }
 }
@@ -217,7 +229,8 @@ function UndoHighlighting(recID) {
 
 function ThumbsClicked(uuid, accepted){
     var options = {"method": "get"};
-    //UrlFetchApp.fetch(reqUrl + rec_ack_path + (accepted ? "?accepted=true" : "?accepted=false"), options).getContentText();
+    UrlFetchApp.fetch(rec_ack_path + (accepted ? "?accepted=true" : "?accepted=false"), options).getContentText();
+
 }
 
 /**
@@ -227,10 +240,16 @@ function ThumbsClicked(uuid, accepted){
  */
 function getRecommendation(document) {
     var results = [];
+    var paragraphs = document.getBody().getParagraphs();
+    var paragraph_text = [];
+    for (var i = 0; i < paragraphs.length; i++) {
+      paragraph_text.push(paragraphs[i].getText());
+    }
 
     var payload = {
         "text": document.getBody().getText(),
-        "paragraphs": [document.getBody().getText()]
+        "paragraphs": paragraph_text,
+        "similarityThreshold": similarityThreshold
     };
 
     var options = {
@@ -239,9 +258,11 @@ function getRecommendation(document) {
         "payload" : JSON.stringify(payload)
     };
 
-    var response = UrlFetchApp.fetch(reqUrl + ananlyze_url_path, options).getContentText();
+    Logger.log("recommendationRequest: " + JSON.stringify(payload));
+    var response = UrlFetchApp.fetch(analyze_url_path, options).getContentText();
     var responseObj = JSON.parse(response);
     results = results.concat(responseObj);
+    Logger.log("recommendationResponse: " + response);
 
     return results;
 }
