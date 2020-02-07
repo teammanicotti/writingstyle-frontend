@@ -1,5 +1,5 @@
 var analyze_url_path = PropertiesService.getScriptProperties().getProperty("apiHost") + "/analyze";
-var rec_ack_path = PropertiesService.getScriptProperties().getProperty("apiHost") + "/recAck";
+var analytics_url_path = PropertiesService.getScriptProperties().getProperty("apiHost") + "/analytics";
 var similarityThreshold = parseFloat(PropertiesService.getScriptProperties().getProperty("similarityThreshold"));
 var PurgeInterval = 10;
 
@@ -104,8 +104,8 @@ function UpdateRecommendationsList(data, hiddenItems){
                     "     " + GetUserFriendlyType(rec['recommendation_type']) + "\n" +
                     "     <div class=recSubTitle>" + rec['original_text'] + "</div>\n" +
                     "   </div>\n" +
-                    "     <img id='" + rec['uuid'] + "' class='recIconThumb thumbs_down' src=\"http://manicotti.se.rit.edu/thumbs-down.png\" alt=\"thumbs down\">\n" +
-                    "     <img id='" + rec['uuid'] + "' class='recIconThumb thumbs_up' src=\"http://manicotti.se.rit.edu/thumbs-up.png\" alt=\"thumbs up\">\n" +
+                    "     <img id='" + rec['uuid'] + "' class='recIconThumb thumbs_down '" +  "data-recommendationType=\"" + rec['recommendation_type'] + "\" src=\"http://manicotti.se.rit.edu/thumbs-down.png\" alt=\"thumbs down\">\n" +
+                    "     <img id='" + rec['uuid'] + "' class='recIconThumb thumbs_up' " + "data-recommendationType=\"" + rec['recommendation_type'] + "\" src=\"http://manicotti.se.rit.edu/thumbs-up.png\" alt=\"thumbs up\">\n" +
                     "   </div>\n" +
                     "   <div class=recText>" + GetRecString(rec['recommendation_type']) + rec['new_values'][0] + "</div>\n" +
                     "</div>\n";
@@ -160,9 +160,26 @@ function GetRecString(type){
 }
 
 
-function ThumbsClicked(uuid, accepted){
-    var options = {"method": "get"};
-    UrlFetchApp.fetch(rec_ack_path + (accepted ? "?accepted=true" : "?accepted=false"), options).getContentText();
+function ThumbsClicked(uuid, accepted, recommendationType){
+    var userKey = Session.getTemporaryActiveUserKey();
+    if(!userKey){
+        userKey = 'unknown';
+    }
+    var payload = {
+        "userKey": userKey, 
+        "recommendationType": recommendationType,
+        "accepted": accepted,
+        "recId": uuid
+    };
+
+    var options = {
+        "method": "post",
+        "contentType": "application/json",
+        "payload" : JSON.stringify(payload)
+    };
+
+    Logger.log("thumbsClicked: " + payload);
+    UrlFetchApp.fetch(analytics_url_path, options).getContentText();
 }
 
 /**

@@ -158,11 +158,11 @@
     });
 
     $('#recommendations').on('click', '.thumbs_up', function() {
-        thumbClicked(this.id, true);
+        thumbClicked(this.id, this.dataset.recommendationType, true);
     });
 
     $('#recommendations').on('click', '.thumbs_down', function() {
-        thumbClicked(this.id, false);
+        thumbClicked(this.id, this.dataset.recommendationType, false);
 
     });
 
@@ -177,7 +177,7 @@
                     google.script.run         //ajax to API that the user hid that card(UID)
                         .withSuccessHandler()
                         .withFailureHandler()
-                        .ThumbsClicked(recID, accepted);
+                        .ThumbsClicked(recID, accepted, );
 
                     var hiddenRecs = localStorage.getItem(docID);
                     console.log("Hidden recs: " +hiddenRecs);
