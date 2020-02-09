@@ -166,7 +166,7 @@
 
     });
 
-    function thumbClicked(recID, accepted){
+    function thumbClicked(recID, recommendationType, accepted){
         $("#" + recID+ ".recommendationCard").remove();//Delete card
         google.script.run
             .withSuccessHandler(function (docID) {
@@ -177,7 +177,7 @@
                     google.script.run         //ajax to API that the user hid that card(UID)
                         .withSuccessHandler()
                         .withFailureHandler()
-                        .ThumbsClicked(recID, accepted, );
+                        .ThumbsClicked(recID, recommendationType, accepted);
 
                     var hiddenRecs = localStorage.getItem(docID);
                     console.log("Hidden recs: " +hiddenRecs);
