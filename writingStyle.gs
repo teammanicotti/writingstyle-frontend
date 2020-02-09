@@ -104,8 +104,8 @@ function UpdateRecommendationsList(data, hiddenItems){
                     "     " + GetUserFriendlyType(rec['recommendation_type']) + "\n" +
                     "     <div class=recSubTitle>" + rec['original_text'] + "</div>\n" +
                     "   </div>\n" +
-                    "     <img id='" + rec['uuid'] + "' class='recIconThumb thumbs_down '" +  "data-recommendationType=\"" + rec['recommendation_type'] + "\" src=\"http://manicotti.se.rit.edu/thumbs-down.png\" alt=\"thumbs down\">\n" +
-                    "     <img id='" + rec['uuid'] + "' class='recIconThumb thumbs_up ' " + "data-recommendationType=\"" + rec['recommendation_type'] + "\" src=\"http://manicotti.se.rit.edu/thumbs-up.png\" alt=\"thumbs up\">\n" +
+                    "     <img id='" + rec['uuid'] + "' class='recIconThumb thumbs_down'" +  "data-recommendationtype=\"" + rec['recommendation_type'] + "\" src=\"http://manicotti.se.rit.edu/thumbs-down.png\" alt=\"thumbs down\">\n" +
+                    "     <img id='" + rec['uuid'] + "' class='recIconThumb thumbs_up' " + "data-recommendationtype=\"" + rec['recommendation_type'] + "\" src=\"http://manicotti.se.rit.edu/thumbs-up.png\" alt=\"thumbs up\">\n" +
                     "   </div>\n" +
                     "   <div class=recText>" + GetRecString(rec['recommendation_type']) + rec['new_values'][0] + "</div>\n" +
                     "</div>\n";
@@ -178,7 +178,7 @@ function ThumbsClicked(uuid, accepted, recommendationType){
         "payload" : JSON.stringify(payload)
     };
 
-    Logger.log("thumbsClicked: " + payload);
+    Logger.log("thumbsClicked: " + JSON.stringify(payload));
     UrlFetchApp.fetch(analytics_url_path, options).getContentText();
 }
 

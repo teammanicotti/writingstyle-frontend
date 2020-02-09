@@ -158,15 +158,15 @@
     });
 
     $('#recommendations').on('click', '.thumbs_up', function() {
-        thumbClicked(this.id, this.dataset.recommendationType, true);
+        thumbClicked(this.id, true, this.dataset.recommendationtype);
     });
 
     $('#recommendations').on('click', '.thumbs_down', function() {
-        thumbClicked(this.id, this.dataset.recommendationType, false);
+        thumbClicked(this.id, false, this.dataset.recommendationtype);
 
     });
 
-    function thumbClicked(recID, recommendationType, accepted){
+    function thumbClicked(recID, accepted, recommendationType){
         $("#" + recID+ ".recommendationCard").remove();//Delete card
         google.script.run
             .withSuccessHandler(function (docID) {
@@ -177,7 +177,7 @@
                     google.script.run         //ajax to API that the user hid that card(UID)
                         .withSuccessHandler()
                         .withFailureHandler()
-                        .ThumbsClicked(recID, recommendationType, accepted);
+                        .ThumbsClicked(recID, accepted, recommendationType);
 
                     var hiddenRecs = localStorage.getItem(docID);
                     console.log("Hidden recs: " +hiddenRecs);
