@@ -105,7 +105,7 @@ function UpdateRecommendationsList(data, hiddenItems){
                     "     <div class=recSubTitle>" + rec['original_text'] + "</div>\n" +
                     "   </div>\n" +
                     "     <img id='" + rec['uuid'] + "' class='recIconThumb thumbs_down '" +  "data-recommendationType=\"" + rec['recommendation_type'] + "\" src=\"http://manicotti.se.rit.edu/thumbs-down.png\" alt=\"thumbs down\">\n" +
-                    "     <img id='" + rec['uuid'] + "' class='recIconThumb thumbs_up' " + "data-recommendationType=\"" + rec['recommendation_type'] + "\" src=\"http://manicotti.se.rit.edu/thumbs-up.png\" alt=\"thumbs up\">\n" +
+                    "     <img id='" + rec['uuid'] + "' class='recIconThumb thumbs_up ' " + "data-recommendationType=\"" + rec['recommendation_type'] + "\" src=\"http://manicotti.se.rit.edu/thumbs-up.png\" alt=\"thumbs up\">\n" +
                     "   </div>\n" +
                     "   <div class=recText>" + GetRecString(rec['recommendation_type']) + rec['new_values'][0] + "</div>\n" +
                     "</div>\n";
