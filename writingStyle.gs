@@ -126,19 +126,39 @@ function UpdateRecommendationsList(data, hiddenItems){
                     "   </div>\n" +
                     "     <img id='" + rec['uuid'] + "' class='recIconThumb thumbs_down' src=\"http://manicotti.se.rit.edu/thumbs-down.png\" alt=\"thumbs down\">\n" +
                     "     <img id='" + rec['uuid'] + "' class='recIconThumb thumbs_up' src=\"http://manicotti.se.rit.edu/thumbs-up.png\" alt=\"thumbs up\">\n" +
-                    "   </div>\n" +
-                    "   <div class=recText>" + GetRecString(rec['recommendation_type']) + rec['new_values'][0] + "</div>\n" +
-                    "</div>\n";
+                    "   </div>\n";
+                if(rec['new_values'].length > 1){
+                    var counter = 0;
+                    paragraphs[para_index] += "<div class=recText id='newValueOptions_" + rec['uuid'] + "'>";
+                    rec['new_values'].forEach(function (newVal) {
+                        paragraphs[para_index] += "<input id='" + counter + "' type='radio'/>";
+                        paragraphs[para_index] += "<span>" + rec['new_values'][counter] + "</span><br>";
+                    });
+                    paragraphs[para_index] +="</div>";
+                }
+                else{
+                    paragraphs[para_index] += "<div class=recText>" + GetRecString(rec['recommendation_type']) + rec['new_values'][0] + "</div>\n";
+                }
+
+                paragraphs[para_index] +="</div>\n";
 
                 HighlightText(rec['original_text'], '#f69e42')
             }
         }
     });
     Object.keys(paragraphs).sort().forEach(function(paragraphNum){
-        html += "<div>\n" +
-            "<div class='pargraphLabel'>Paragraph: " + paragraphNum + "</div>\n" +
-            paragraphs[paragraphNum] +
-            "</div>\n"
+        var num = (parseInt(paragraphNum, 10) + 1);
+        if(paragraphNum > 0){
+            html += "<div>\n" +
+                "<div class='pargraphLabel'>Paragraph: " + num + "</div>\n" +
+                paragraphs[paragraphNum] +
+                "</div>\n"
+        }
+        else{
+            html += "<div class=newParagraph id=" + num + ">\n" +
+                paragraphs[paragraphNum] +
+                "</div>\n"
+        }
     });
 
     //Find items currently in the doc and known to be hidden
