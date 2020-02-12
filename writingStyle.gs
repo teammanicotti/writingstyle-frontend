@@ -104,10 +104,12 @@ function UpdateRecommendationsList(data, hiddenItems){
                     "     " + GetUserFriendlyType(rec['recommendation_type']) + "\n" +
                     "     <div class=recSubTitle>" + rec['original_text'] + "</div>\n" +
                     "   </div>\n" +
+                    "   <div class=recIconThumbContainer>" +
                     "     <img id='" + rec['uuid'] + "' class='recIconThumb thumbs_down'" +  "data-recommendationtype=\"" + rec['recommendation_type'] + "\" src=\"http://manicotti.se.rit.edu/thumbs-down.png\" alt=\"thumbs down\">\n" +
                     "     <img id='" + rec['uuid'] + "' class='recIconThumb thumbs_up' " + "data-recommendationtype=\"" + rec['recommendation_type'] + "\" src=\"http://manicotti.se.rit.edu/thumbs-up.png\" alt=\"thumbs up\">\n" +
                     "   </div>\n" +
-                    "   <div class=recText>" + GetRecString(rec['recommendation_type']) + rec['new_values'][0] + "</div>\n" +
+                    "  </div>\n" +
+                    "  <div class=recText>" + GetRecString(rec['recommendation_type']) + rec['new_values'][0] + "</div>\n" +
                     "</div>\n";
             }
         }
