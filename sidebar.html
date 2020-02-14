@@ -281,20 +281,36 @@
     });
 
     $('#recommendations').on('click', '.thumbs_up', function() {
-        thumbClicked(this.id, true);
+        var selected_index = 0;
+        var is_multivalue = $('.radio_' + this.id).length > 1;
+        console.log("Is multi: " + is_multivalue);
+        if(is_multivalue){
+          var selected_item = $('.radio_' + this.id + ':checked'); //TODO selected many
+          if(selected_item !== null){
+            selected_index = selected_item.attr("id");
+            console.log("Selected item: " + selected_index);
+          }
+          else {
+            console.log("No item selected");
+            alert("No item selected to accept!")
+          }
+        }
+
+        thumbClicked(this.id, true, selected_index);
     });
 
     $('#recommendations').on('click', '.thumbs_down', function() {
-        thumbClicked(this.id, false);
+        thumbClicked(this.id, false, -1);
     });
 
-    function thumbClicked(recID, accepted){
+    function thumbClicked(recID, accepted, accepted_ans){
         $("#" + recID+ ".recommendationCard").remove();//Delete card
         if(accepted) {
+          console.log(recID + " - ID " + accepted_ans);
             google.script.run
                 .withSuccessHandler()
                 .withFailureHandler()
-                .DoSubstitution(recID);
+                .DoSubstitution(recID, accepted_ans);
         }
         else{
             google.script.run
@@ -314,7 +330,6 @@
                         .ThumbsClicked(recID, accepted);
 
                     var hiddenRecs = localStorage.getItem(docID);
-                    console.log("Hidden recs: " +hiddenRecs);
                     if (hiddenRecs === null || hiddenRecs === "") {
                         let newEntry = {"hidden": [recID.toString()]};
                         localStorage.setItem(docID, JSON.stringify(newEntry))

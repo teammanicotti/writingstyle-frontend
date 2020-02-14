@@ -1,10 +1,9 @@
-var analyze_url_path = PropertiesService.getScriptProperties().getProperty("apiHost") + "/analyze";
-var rec_ack_path = PropertiesService.getScriptProperties().getProperty("apiHost") + "/recAck";
+var apiHost = "https://7bf279d7.ngrok.io";
+//var analyze_url_path = PropertiesService.getScriptProperties().getProperty("apiHost") + "/analyze";
+var analyze_url_path = apiHost + "/analyze";
+//var rec_ack_path = PropertiesService.getScriptProperties().getProperty("apiHost") + "/recAck";
+var rec_ack_path = apiHost + "/recAck";
 var similarityThreshold = parseFloat(PropertiesService.getScriptProperties().getProperty("similarityThreshold"));
-var PurgeInterval = 10;
-
-var analyzationsSinceLastPurge = 0;
-var activeFileID = DocumentApp.getActiveDocument().getId();
 var cache = CacheService.getDocumentCache();
 /**
  * @OnlyCurrentDoc
@@ -122,7 +121,7 @@ function UpdateRecommendationsList(data, hiddenItems){
                     " <div class=recHeader>\n" +
                     "   <div class=recHeaderText>" +
                     "     " + GetUserFriendlyType(rec['recommendation_type']) + "\n" +
-                    "     <div class=recSubTitle>" + rec['original_text'] + "</div>\n" +
+                    "     <div class=recSubTitle>" + rec['text_to_highlight'] + "</div>\n" +
                     "   </div>\n" +
                     "     <img id='" + rec['uuid'] + "' class='recIconThumb thumbs_down' src=\"http://manicotti.se.rit.edu/thumbs-down.png\" alt=\"thumbs down\">\n" +
                     "     <img id='" + rec['uuid'] + "' class='recIconThumb thumbs_up' src=\"http://manicotti.se.rit.edu/thumbs-up.png\" alt=\"thumbs up\">\n" +
@@ -131,8 +130,9 @@ function UpdateRecommendationsList(data, hiddenItems){
                     var counter = 0;
                     paragraphs[para_index] += "<div class=recText id='newValueOptions_" + rec['uuid'] + "'>";
                     rec['new_values'].forEach(function (newVal) {
-                        paragraphs[para_index] += "<input id='" + counter + "' type='radio'/>";
-                        paragraphs[para_index] += "<span>" + rec['new_values'][counter] + "</span><br>";
+                        paragraphs[para_index] += "<input type='radio' class='radio_" + rec['uuid'] + "' id='" + counter + "'/>"; //'" +rec['new_values'][counter] + "</input>";
+                        paragraphs[para_index] += "<span id='value_" + rec['uuid'] + "' class='" + counter + "'>" + rec['new_values'][counter] + "</span><br>";
+                        counter++;
                     });
                     paragraphs[para_index] +="</div>";
                 }
@@ -211,15 +211,16 @@ function GetRecString(type){
     }
 }
 
-function DoSubstitution(recID){
+function DoSubstitution(recID, selected_index){
     var currentRecommendations = JSON.parse(cache.get("current_recs"));
 
     if(currentRecommendations !== null) {
         currentRecommendations.forEach(function (rec) {
-            if (recID === rec['uuid']) {
+            if (recID === rec['uuid'] && rec['is_replaceable']) {
                 var body = DocumentApp.getActiveDocument().getBody();
-                HighlightText(rec['original_text'], '#ffffff')
-                body.replaceText(rec['original_text'], rec['new_values'][0]);
+                HighlightText(rec['original_text'], '#ffffff');
+                //Logger.log("Replacing: '" + rec['original_text'] + "' with '" + rec['new_values'][selected_index] + "'");
+                body.replaceText(rec['original_text'], rec['new_values'][selected_index]);
                 return;
             }
         });
