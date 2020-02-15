@@ -170,6 +170,17 @@ function UpdateRecommendationsList(data, hiddenItems){
     return [html, newCache];
 }
 
+function ShowErrorMultiSelect(count) {
+    var ui = DocumentApp.getUi();
+    if(count > 1){
+        ui.alert('Please select only one option');
+    }
+    else {
+        ui.alert('Please select an option');
+    }
+
+}
+
 function HighlightText(stringText, color) {
     var body = DocumentApp.getActiveDocument().getBody();
     var text = body.editAsText();
