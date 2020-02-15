@@ -1,4 +1,4 @@
-var apiHost = "https://7bf279d7.ngrok.io";
+var apiHost = "https://20dfd657.ngrok.io";
 //var analyze_url_path = PropertiesService.getScriptProperties().getProperty("apiHost") + "/analyze";
 var analyze_url_path = apiHost + "/analyze";
 //var rec_ack_path = PropertiesService.getScriptProperties().getProperty("apiHost") + "/recAck";
@@ -112,7 +112,6 @@ function UpdateRecommendationsList(data, hiddenItems){
         mostRecentRecs.push(rec['uuid']);
         if(hiddenItems === null || hiddenItems.toString().indexOf(rec['uuid']) === -1){ //If the user has not already accepted/rejected it
             var para_index = rec['paragraph_index'];
-            console.log("Paragraph index: " + para_index);
             if (!(para_index in paragraphs)) {
                 paragraphs[para_index] = ""
             }
@@ -149,15 +148,19 @@ function UpdateRecommendationsList(data, hiddenItems){
     Object.keys(paragraphs).sort().forEach(function(paragraphNum){
         var num = (parseInt(paragraphNum, 10) + 1);
         if(paragraphNum > 0){
-            html += "<div>\n" +
-                "<div class='pargraphLabel'>Paragraph: " + num + "</div>\n" +
-                paragraphs[paragraphNum] +
+            html += "<div>" +
+                        "<div class='pargraphLabel'>" +
+                            "Paragraph: " + num + "" +
+                            "<img id='paragraph_" + num + "' class='collapse' src='http://manicotti.se.rit.edu/plus.png' alt='plus'>" +
+                        "</div>\n" +
+                    "<div class='paragraph_recs' id='recommendations_" + num + "'>" + paragraphs[paragraphNum]  + "</div>";
                 "</div>\n"
         }
         else{
-            html += "<div class=newParagraph id=" + num + ">\n" +
-                paragraphs[paragraphNum] +
-                "</div>\n"
+            //First item shouldn't have a title because its baked in with the settings options
+            html += "<div>" +
+                        "<div class='paragraph_recs' id='recommendations_1'>" + paragraphs[paragraphNum]  + "</div>";
+                    "</div>"
         }
     });
 
@@ -236,7 +239,6 @@ function UndoHighlighting(recID) {
     if(currentRecommendations !== null) {
         currentRecommendations.forEach(function (rec) {
             if (recID === rec['uuid']) {
-                var body = DocumentApp.getActiveDocument().getBody();
                 HighlightText(rec['original_text'], '#ffffff')
                 return;
             }

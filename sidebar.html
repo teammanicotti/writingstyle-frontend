@@ -62,8 +62,12 @@
     }
 
     .pargraphLabel{
-      margin-top: 5px;
+      /*margin-top: 5px;*/
       font: 15px arial;
+      display:flex;
+      flex-direction: row;
+      justify-content: left;
+      align-items: center;
     }
     #pargraphOneSettings{
       display:flex;
@@ -71,23 +75,35 @@
       justify-content: space-between;
       align-items: center;
       height: 3%;
-      min-height: 35px;
+      min-height: 20px;
     }
 
     #paragraphOne{
       font: 15px arial;
-      display: inline-block;
+      /*display: inline-block;*/
       float: left;
+      display:flex;
+      flex-direction: row;
+      justify-content: left;
+      align-items: center;
+      visibility: hidden;
     }
 
     #settingsIcon {
-      height: 35px;
-      width: 35px;
+      height: 20px;
+      width: 20px;
       display: inline-block;
       float: right;
       justify-self: right;
     }
 
+    .collapse {
+      height: 20px;
+      width: 20px;
+      display: inline-block;
+      float: right;
+      justify-self: left;
+    }
 
 
     .recHeader{
@@ -147,6 +163,18 @@
       cursor: default;
     }
 
+    #errors {
+      background: red;
+      text-align:right;
+      overflow: hidden;
+      cursor: default;
+      display: none;
+      height: 20px;
+    }
+
+    .paragraph_recs{
+      display: inline-block;
+    }
 
     #clearHidden {
       background: #1464f6;
@@ -191,8 +219,14 @@
         Clear Hidden Items
       </div>
     </div>
+    <div id="errors">
+
+    </div>
     <div id="pargraphOneSettings">
-      <div id="paragraphOne">Paragraph: 1</div>
+      <div id="paragraphOne">
+        Paragraph: 1
+        <img id='paragraph_1' class='collapse' src='http://manicotti.se.rit.edu/plus.png' alt='plus'>
+      </div>
       <img id='settingsIcon' src="http://manicotti.se.rit.edu/settings.png" alt="settings">
     </div>
     <div id="recommendations">
@@ -209,10 +243,14 @@
     var undo_items = [];
     var redo_items = [];
 
+    /**
+     * Document ready: analyze
+     **/
     $(document).ready(function () {
         scanDocument();
     });
 
+    /**Undo/redo key captures**/
     $(document).keydown(function (e) {
         console.log("Key press: " + e.which);
         if( e.which === 90 && e.metaKey && e.shiftKey ){
@@ -223,6 +261,7 @@
         }
     });
 
+    /**On scroll, dynamically show/hide the options**/
     $('#recommendations').on('scroll', function() {
         if ($(this).scrollTop() > 5) {
             $("#pargraphOneSettings").css("display", "none");
@@ -236,7 +275,7 @@
         }
       });
 
-
+    /** Undo/redo functions **/
     function Undo(){
       //TODO
     }
@@ -245,6 +284,7 @@
       //TODO
     }
 
+    /** Toggle settings visible **/
     $('#settingsIcon').click(function () {
         SetOptionsVisible(!($('#clearHidden').css("display") ===  "block"));
     });
@@ -259,6 +299,7 @@
         $('#recommendations').css("height", "90%");
     }
 
+    /** Clear hidden items **/
     $('#clearHidden').click(function () {
         google.script.run
             .withSuccessHandler(function (docID) {
@@ -275,34 +316,59 @@
             .getDocumentID();
     });
 
+    /** Analyze button clicked**/
     $('#analyzeBtn').click(function () {
         console.log("Analyzing");
         scanDocument();
     });
 
+    /** + clicked to toggle section collapsed **/
+    $('#recommendations').on('click', '.collapse', function(){
+      toggle_section_visble(this.id)
+    });
+    $('.collapse').click(function(){
+      console.log("Toggling 1");
+      toggle_section_visble(this.id);
+    });
+
+    function toggle_section_visble(id){
+      var item_to_toggle_id = id.replace("paragraph", "recommendations");
+      var item_to_toggle = $("#"+item_to_toggle_id);
+      if(item_to_toggle.css("display") ===  "inline-block"){
+        item_to_toggle.css("display", "none");
+      }
+      else{
+        item_to_toggle.css("display", "inline-block");
+      }
+    }
+
+    /** Thumbs up clicked */
     $('#recommendations').on('click', '.thumbs_up', function() {
         var selected_index = 0;
         var is_multivalue = $('.radio_' + this.id).length > 1;
         console.log("Is multi: " + is_multivalue);
         if(is_multivalue){
           var selected_item = $('.radio_' + this.id + ':checked'); //TODO selected many
-          if(selected_item !== null){
+          if(selected_item !== null && selected_item.length === 1){
             selected_index = selected_item.attr("id");
             console.log("Selected item: " + selected_index);
           }
           else {
             console.log("No item selected");
-            alert("No item selected to accept!")
+            showError("Please select an option");
+            return;
           }
         }
 
         thumbClicked(this.id, true, selected_index);
     });
 
+    /** Thumbs down clicked **/
     $('#recommendations').on('click', '.thumbs_down', function() {
         thumbClicked(this.id, false, -1);
     });
 
+    /** Generic thumb up/down clicked method **/
     function thumbClicked(recID, accepted, accepted_ans){
         $("#" + recID+ ".recommendationCard").remove();//Delete card
         if(accepted) {
@@ -346,7 +412,12 @@
             .getDocumentID();
     }
 
+    /** Show an error **/
+    function showError(msg) {
+      $('errors').css("display", "block");
+      $('errors').html(msg);
 
+    }
     /**
      * Request the server to scan the opened document.
      */
@@ -376,6 +447,7 @@
                             //scanDocument returns structured html, no just put it in the correct div
                             $('#recommendations').html(result[0]);
                             $('#refreshPng').hide();
+                            $('#paragraphOne').css('visibility', 'visible');
                             if(result[1].length > 0) { //Update with the calculated diff of hidden items
                                 localStorage.setItem(docID, JSON.stringify({"hidden":result[1]}))
                             }
