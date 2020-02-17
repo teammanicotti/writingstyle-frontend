@@ -1,4 +1,4 @@
-var apiHost = "https://20dfd657.ngrok.io";
+var apiHost = "https://968ee539.ngrok.io";
 //var analyze_url_path = PropertiesService.getScriptProperties().getProperty("apiHost") + "/analyze";
 var analyze_url_path = apiHost + "/analyze";
 //var rec_ack_path = PropertiesService.getScriptProperties().getProperty("apiHost") + "/recAck";
@@ -129,7 +129,7 @@ function UpdateRecommendationsList(data, hiddenItems){
                     var counter = 0;
                     paragraphs[para_index] += "<div class=recText id='newValueOptions_" + rec['uuid'] + "'>";
                     rec['new_values'].forEach(function (newVal) {
-                        paragraphs[para_index] += "<input type='radio' class='radio_" + rec['uuid'] + "' id='" + counter + "'/>"; //'" +rec['new_values'][counter] + "</input>";
+                        paragraphs[para_index] += "<input name='" + rec['uuid'] + "' type='radio' class='radio_" + rec['uuid'] + "' id='" + counter + "'/>";
                         paragraphs[para_index] += "<span id='value_" + rec['uuid'] + "' class='" + counter + "'>" + rec['new_values'][counter] + "</span><br>";
                         counter++;
                     });

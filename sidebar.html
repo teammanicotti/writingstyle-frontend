@@ -161,6 +161,7 @@
       text-align:right;
       overflow: hidden;
       cursor: default;
+      display: none;
     }
 
     .paragraph_recs{
@@ -177,8 +178,18 @@
       color: white;
       cursor: default;
       width: 90%;
-      display: none;
       margin: auto;
+    }
+
+    input[name="refresh"] {
+      padding-left: 10px;
+    }
+
+    #refresh_rate{
+      text-align:left;
+      justify-content: left;
+      align-items: center;
+      padding-left: 10px;
     }
 
     #refreshPng{
@@ -208,6 +219,13 @@
     <div id="options">
       <div id="clearHidden">
         Clear Hidden Items
+      </div>
+      <div id="refresh_rate">
+        Refresh Rate:<br>
+        <input name="refresh" id="time_none" type="radio"> Manual<br>
+        <input name="refresh" id="time_1" type="radio"> Every Minute<br>
+        <input name="refresh" id="time_2" type="radio"> Every 2 Minutes<br>
+        <input name="refresh" id="time_5" type="radio"> Every 5 Minutes<br>
       </div>
     </div>
     <div id="pargraphOneSettings">
@@ -274,15 +292,15 @@
 
     /** Toggle settings visible **/
     $('#settingsIcon').click(function () {
-        SetOptionsVisible(!($('#clearHidden').css("display") ===  "block"));
+        SetOptionsVisible(!($('#options').css("display") ===  "block"));
     });
 
     function SetOptionsVisible(visible){
         if(visible){
-            $('#clearHidden').css("display", "block");
+            $('#options').css("display", "block");
         }
         else{
-            $('#clearHidden').css("display", "none");
+            $('#options').css("display", "none");
         }
         $('#recommendations').css("height", "90%");
     }
