@@ -1,4 +1,4 @@
-var apiHost = "https://968ee539.ngrok.io";
+var apiHost = "http://540d2e57.ngrok.io";
 //var analyze_url_path = PropertiesService.getScriptProperties().getProperty("apiHost") + "/analyze";
 var analyze_url_path = apiHost + "/analyze";
 //var rec_ack_path = PropertiesService.getScriptProperties().getProperty("apiHost") + "/recAck";

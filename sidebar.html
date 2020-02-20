@@ -209,6 +209,37 @@
       display: block;
       overflow: auto;
     }
+    
+    .rotate-center {
+      opacity: 0.5;
+      transition: opacity 0.6s ease-in-out;
+	  -webkit-animation: rotate-center 0.6s ease-in-out 0s infinite;
+	          animation: rotate-center 0.6s ease-in-out 0s infinite;
+    }
+    
+    @-webkit-keyframes rotate-center {
+      0% {
+        -webkit-transform: rotate(0);
+                transform: rotate(0);
+      }
+    
+      100% {
+        -webkit-transform: rotate(360deg);
+                transform: rotate(360deg);
+      }
+   }
+    
+   @keyframes rotate-center {
+     0% {
+      -webkit-transform: rotate(0);
+              transform: rotate(0);
+    }
+  
+    100% {
+      -webkit-transform: rotate(360deg);
+              transform: rotate(360deg);
+    }
+  }
 
 
   </style>
@@ -297,10 +328,14 @@
 
     function SetOptionsVisible(visible){
         if(visible){
-            $('#options').css("display", "block");
+            $('#options').slideDown(function() {
+               $('#options').css("display", "block");
+            });
         }
         else{
-            $('#options').css("display", "none");
+            $('#options').slideUp(function() {
+               $('#options').css("display", "none");
+            });
         }
         $('#recommendations').css("height", "90%");
     }
@@ -340,11 +375,21 @@
     function toggle_section_visble(id){
       var item_to_toggle_id = id.replace("paragraph", "recommendations");
       var item_to_toggle = $("#"+item_to_toggle_id);
+      var item_collapse = $("#" + id);
+      
+      item_collapse.addClass("rotate-center");
+      
       if(item_to_toggle.css("display") ===  "inline-block"){
-        item_to_toggle.css("display", "none");
+        item_to_toggle.slideUp("slow", function() {
+          item_to_toggle.css("display", "none");
+          item_collapse.removeClass("rotate-center");
+        });
       }
       else{
-        item_to_toggle.css("display", "inline-block");
+        item_to_toggle.slideDown("slow", function() {
+          item_to_toggle.css("display", "inline-block");
+          item_collapse.removeClass("rotate-center");
+        });
       }
     }
 
