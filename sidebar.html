@@ -423,7 +423,14 @@
 
     /** Generic thumb up/down clicked method **/
     function thumbClicked(recID, accepted, accepted_ans){
-        $("#" + recID+ ".recommendationCard").remove();//Delete card
+        //Delete card
+        var el = $("#" + recID + ".recommendationCard")
+        el.animate({opacity: '0'}, 200, function(){
+          el.animate({height: '0px'}, 200, function(){
+            el.remove();
+          });
+        });
+        
         if(accepted) {
           console.log(recID + " - ID " + accepted_ans);
             google.script.run
