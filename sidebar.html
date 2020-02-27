@@ -252,19 +252,21 @@
         Clear Hidden Items
       </div>
       <div id="refresh_rate">
-        Refresh Rate:<br>
-        <input name="refresh" id="time_none" type="radio"> Manual<br>
-        <input name="refresh" id="time_1" type="radio"> Every Minute<br>
-        <input name="refresh" id="time_2" type="radio"> Every 2 Minutes<br>
-        <input name="refresh" id="time_5" type="radio"> Every 5 Minutes<br>
+        Refresh Rate:
+        <select id="refresh_interval">
+          <option value="thirty_sec">30s</option>
+          <option value="one_min" selected="selected">1m</option>
+          <option value="two_min">2m</option>
+          <option value="five_min">5m</option>
+        </select>
       </div>
     </div>
     <div id="pargraphOneSettings">
       <div id="paragraphOne">
         Paragraph: 1
-        <img id='paragraph_1' class='collapse' src='http://manicotti.se.rit.edu/plus.png' alt='plus'>
+        <img id='paragraph_1' class='collapse' src='https://manicotti.se.rit.edu/plus.png' alt='plus'>
       </div>
-      <img id='settingsIcon' src="http://manicotti.se.rit.edu/settings.png" alt="settings">
+      <img id='settingsIcon' src="https://manicotti.se.rit.edu/settings.png" alt="settings">
     </div>
     <div id="recommendations">
         <!--Recommendation cards load here -->
@@ -279,13 +281,83 @@
 <script>
     var undo_items = [];
     var redo_items = [];
-
+    var timeoutObj;
     /**
      * Document ready: analyze
      **/
     $(document).ready(function () {
-        scanDocument();
+      scanDocument();
+      var interval = localStorage.getItem("refresh_interval");
+      console.log("LOCAL STORAGE VALUE: " + interval);
+      if(interval !== null) {
+        $('#refresh_interval').val(interval); //Change will trigger update
+        setRefreshInterval(interval);
+      }
+      else{
+        console.log("Starting 60 sec");
+        timeoutObj = window.setInterval(scanDocument, 60000);
+      }
     });
+
+    $('#refresh_interval').on("change",  function (e) {
+      setRefreshInterval($("#refresh_interval option:selected" ).val());
+    });
+
+    // function getTimeout(){
+    //   console.log("Getting timeout");
+    //   var timeout;
+    //
+    //
+    //     console.log("No stored interval");
+    //     interval = "one_min";
+    //     localStorage.setItem("refresh_interval", "one_min");
+    //     switch (interval) {
+    //       case "thirty_sec":
+    //         timeout = 30;
+    //         break;
+    //       case "two_min":
+    //         timeout = 120;
+    //         break;
+    //       case "five_min":
+    //         timeout = 300;
+    //         break;
+    //       default:
+    //       case "one_min":
+    //         timeout = 60;
+    //         break;
+    //     }
+    //   }
+    //   else {
+    //     console.log("Found stored interval: " + interval);
+    //     $('#refresh_rate').val(interval) //Change will trigger update
+    //   }
+    //
+    //   return timeout * 1000;
+    // }
+
+    function setRefreshInterval(value){
+      console.log("setRefreshInterval: Setting timeout: " + value);
+      var timeout;
+      switch (value) {
+        case "thirty_sec":
+          timeout = 30;
+          break;
+        case "two_min":
+          timeout = 120;
+          break;
+        case "five_min":
+          timeout = 300;
+          break;
+        default:
+        case "one_min":
+          console.log("In default: " + value);
+          timeout = 60;
+          break;
+      }
+      localStorage.setItem("refresh_interval", value);
+      window.clearTimeout(timeoutObj);
+      timeoutObj = window.setInterval(scanDocument, timeout * 1000);
+    }
 
     /**Undo/redo key captures**/
     $(document).keydown(function (e) {
@@ -323,21 +395,22 @@
 
     /** Toggle settings visible **/
     $('#settingsIcon').click(function () {
-        SetOptionsVisible(!($('#options').css("display") ===  "block"));
+      console.log("Settings clickeed");
+        SetOptionsVisible(!($('#options').css("display") ===  "inline-block"));
     });
 
     function SetOptionsVisible(visible){
+      console.log("Setting options visible: " + visible);
         if(visible){
             $('#options').slideDown(function() {
-               $('#options').css("display", "block");
+               $('#options').css("display", "inline-block");
             });
         }
-        else{
-            $('#options').slideUp(function() {
-               $('#options').css("display", "none");
-            });
+        else {
+          $('#options').slideUp(function () {
+            $('#options').css("display", "none");
+          });
         }
-        $('#recommendations').css("height", "90%");
     }
 
     /** Clear hidden items **/
@@ -359,7 +432,7 @@
 
     /** Analyze button clicked**/
     $('#analyzeBtn').click(function () {
-        console.log("Analyzing");
+
         scanDocument();
     });
 
@@ -399,7 +472,7 @@
         var is_multivalue = $('.radio_' + this.id).length > 1;
         console.log("Is multi: " + is_multivalue);
         if(is_multivalue){
-          var selected_item = $('.radio_' + this.id + ':checked'); //TODO selected many
+          var selected_item = $('.radio_' + this.id + ':checked');
           if(selected_item !== null && selected_item.length === 1){
             selected_index = selected_item.attr("id");
             console.log("Selected item: " + selected_index);
@@ -476,6 +549,7 @@
      * Request the server to scan the opened document.
      */
     function scanDocument() {
+        console.log("Analyzing");
         $("#resultsDiv").hide();
         $('#systemErrorDiv').hide();
         $('#simpleToComplexErrorsDiv').hide();
@@ -522,7 +596,6 @@
             })
             .withFailureHandler({})
             .getDocumentID();
-
     }
 </script>
 

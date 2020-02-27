@@ -1,4 +1,4 @@
-var apiHost = "https://968ee539.ngrok.io";
+var apiHost = "https://manicotti.se.rit.edu";
 //var analyze_url_path = PropertiesService.getScriptProperties().getProperty("apiHost") + "/analyze";
 var analyze_url_path = apiHost + "/analyze";
 //var rec_ack_path = PropertiesService.getScriptProperties().getProperty("apiHost") + "/recAck";
@@ -122,8 +122,8 @@ function UpdateRecommendationsList(data, hiddenItems){
                     "     " + GetUserFriendlyType(rec['recommendation_type']) + "\n" +
                     "     <div class=recSubTitle>" + rec['text_to_highlight'] + "</div>\n" +
                     "   </div>\n" +
-                    "     <img id='" + rec['uuid'] + "' class='recIconThumb thumbs_down' src=\"http://manicotti.se.rit.edu/thumbs-down.png\" alt=\"thumbs down\">\n" +
-                    "     <img id='" + rec['uuid'] + "' class='recIconThumb thumbs_up' src=\"http://manicotti.se.rit.edu/thumbs-up.png\" alt=\"thumbs up\">\n" +
+                    "     <img id='" + rec['uuid'] + "' class='recIconThumb thumbs_down' src=\"https://manicotti.se.rit.edu/thumbs-down.png\" alt=\"thumbs down\">\n" +
+                    "     <img id='" + rec['uuid'] + "' class='recIconThumb thumbs_up' src=\"https://manicotti.se.rit.edu/thumbs-up.png\" alt=\"thumbs up\">\n" +
                     "   </div>\n";
                 if(rec['new_values'].length > 1){
                     var counter = 0;
@@ -151,7 +151,7 @@ function UpdateRecommendationsList(data, hiddenItems){
             html += "<div>" +
                         "<div class='pargraphLabel'>" +
                             "Paragraph: " + num + "" +
-                            "<img id='paragraph_" + num + "' class='collapse' src='http://manicotti.se.rit.edu/plus.png' alt='plus'>" +
+                            "<img id='paragraph_" + num + "' class='collapse' src='https://manicotti.se.rit.edu/plus.png' alt='plus'>" +
                         "</div>\n" +
                     "<div class='paragraph_recs' id='recommendations_" + num + "'>" + paragraphs[paragraphNum]  + "</div>";
                 "</div>\n"
