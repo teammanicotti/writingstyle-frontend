@@ -186,9 +186,10 @@
     }
 
     #refresh_rate{
-      text-align:left;
-      justify-content: left;
+      text-align:center;
+      justify-content: center;
       align-items: center;
+      padding-top: 5px;
       padding-left: 10px;
     }
 
@@ -254,6 +255,7 @@
       <div id="refresh_rate">
         Refresh Rate:
         <select id="refresh_interval">
+          <option value="none">Manual</option>
           <option value="thirty_sec">30s</option>
           <option value="one_min" selected="selected">1m</option>
           <option value="two_min">2m</option>
@@ -288,57 +290,25 @@
     $(document).ready(function () {
       scanDocument();
       var interval = localStorage.getItem("refresh_interval");
-      console.log("LOCAL STORAGE VALUE: " + interval);
       if(interval !== null) {
         $('#refresh_interval').val(interval); //Change will trigger update
         setRefreshInterval(interval);
       }
       else{
-        console.log("Starting 60 sec");
         timeoutObj = window.setInterval(scanDocument, 60000);
       }
     });
 
-    $('#refresh_interval').on("change",  function (e) {
+    $('#refresh_interval').on("change",  function () {
       setRefreshInterval($("#refresh_interval option:selected" ).val());
     });
 
-    // function getTimeout(){
-    //   console.log("Getting timeout");
-    //   var timeout;
-    //
-    //
-    //     console.log("No stored interval");
-    //     interval = "one_min";
-    //     localStorage.setItem("refresh_interval", "one_min");
-    //     switch (interval) {
-    //       case "thirty_sec":
-    //         timeout = 30;
-    //         break;
-    //       case "two_min":
-    //         timeout = 120;
-    //         break;
-    //       case "five_min":
-    //         timeout = 300;
-    //         break;
-    //       default:
-    //       case "one_min":
-    //         timeout = 60;
-    //         break;
-    //     }
-    //   }
-    //   else {
-    //     console.log("Found stored interval: " + interval);
-    //     $('#refresh_rate').val(interval) //Change will trigger update
-    //   }
-    //
-    //   return timeout * 1000;
-    // }
-
     function setRefreshInterval(value){
-      console.log("setRefreshInterval: Setting timeout: " + value);
       var timeout;
       switch (value) {
+        case "none":
+          timeout = -1;
+          break;
         case "thirty_sec":
           timeout = 30;
           break;
@@ -350,13 +320,14 @@
           break;
         default:
         case "one_min":
-          console.log("In default: " + value);
           timeout = 60;
           break;
       }
       localStorage.setItem("refresh_interval", value);
       window.clearTimeout(timeoutObj);
-      timeoutObj = window.setInterval(scanDocument, timeout * 1000);
+      if(timeout > -1){
+        timeoutObj = window.setInterval(scanDocument, timeout * 1000);
+      }
     }
 
     /**Undo/redo key captures**/
@@ -374,13 +345,10 @@
     $('#recommendations').on('scroll', function() {
         if ($(this).scrollTop() > 5) {
             $("#pargraphOneSettings").css("display", "none");
-            // $('#recommendations').css("height", "96%");
             SetOptionsVisible(false);
         }
         else {
             $("#pargraphOneSettings").css("display", "flex");
-            // $('#recommendations').css("height", "93%");
-
         }
       });
 
@@ -394,16 +362,19 @@
     }
 
     /** Toggle settings visible **/
-    $('#settingsIcon').click(function () {
-      console.log("Settings clickeed");
-        SetOptionsVisible(!($('#options').css("display") ===  "inline-block"));
+    $('#recommendations').on('click', '.paragraph_recs', function(){
+        SetOptionsVisible(false);
     });
 
+    /** Toggle settings visible **/
+    $('#settingsIcon').click(function () {
+      SetOptionsVisible(!($('#options').css("display") ===  "block"));
+    });
     function SetOptionsVisible(visible){
       console.log("Setting options visible: " + visible);
         if(visible){
             $('#options').slideDown(function() {
-               $('#options').css("display", "inline-block");
+               $('#options').css("display", "block");
             });
         }
         else {
