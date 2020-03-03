@@ -417,8 +417,8 @@
         //Remove it
         else{
           var el = $("#" + element["recID"] + ".recommendationCard");
-          el.animate({opacity: '0'}, 400, function(){
-            el.animate({height: '0px'}, 400, function(){
+          el.animate({opacity: '0'}, 200, function(){
+            el.animate({height: '0px'}, 200, function(){
               el.remove();
             });
           });
@@ -585,8 +585,8 @@
     function thumbClicked(recID, accepted, accepted_ans){
        //Delete card
        var el = $("#" + recID + ".recommendationCard");
-       el.animate({opacity: '0'}, 400, function(){
-         el.animate({height: '0px'}, 400, function(){
+       el.animate({opacity: '0'}, 200, function(){
+         el.animate({height: '0px'}, 200, function(){
            el.remove();
          });
        });
