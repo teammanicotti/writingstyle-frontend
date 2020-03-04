@@ -406,18 +406,17 @@
       else {
         element = redo_items.pop();
       }
-
+      
       if(element !== null) {
-        var el;
         //Add it back
         if(element["action"] === "remove"){
-          $("#" + element["parent"]).prepend(element["html"]);
+          $(element["html"]).hide().prependTo($("#" + element["parent"])).fadeIn();
           element["action"] = "add";
           UpdateHidden(true, element["recID"])
         }
         //Remove it
         else{
-          el = $("#" + element["recID"] + ".recommendationCard");
+          var el = $("#" + element["recID"] + ".recommendationCard");
           el.animate({opacity: '0'}, 200, function(){
             el.animate({height: '0px'}, 200, function(){
               el.remove();
@@ -522,7 +521,6 @@
 
     /** Analyze button clicked**/
     $('#analyzeBtn').click(function () {
-
         scanDocument();
     });
 
@@ -530,6 +528,7 @@
     $('#recommendations').on('click', '.collapse', function(){
       toggle_section_visble(this.id)
     });
+    
     $('.collapse').click(function(){
       toggle_section_visble(this.id);
     });
@@ -539,7 +538,9 @@
       var item_to_toggle = $("#"+item_to_toggle_id);
       var item_collapse = $("#" + id);
       
-      item_collapse.addClass("rotate-center");
+      if (item_to_toggle.children().length > 0) {
+        item_collapse.addClass("rotate-center");
+      }
       
       if(item_to_toggle.css("display") ===  "block"){
         item_to_toggle.slideUp("slow", function() {
@@ -582,13 +583,14 @@
 
     /** Generic thumb up/down clicked method **/
     function thumbClicked(recID, accepted, accepted_ans){
-        //Delete card
-        var el = $("#" + recID + ".recommendationCard");
-        el.animate({opacity: '0'}, 200, function(){
-          el.animate({height: '0px'}, 200, function(){
-            el.remove();
-          });
-        });
+       //Delete card
+       var el = $("#" + recID + ".recommendationCard");
+       el.animate({opacity: '0'}, 200, function(){
+         el.animate({height: '0px'}, 200, function(){
+           el.remove();
+         });
+       });
+       
       //Add to undo stack
       undo_items.push(GenerateUndoObj(el.parent().attr('id'), "remove", recID, el.prop('outerHTML')));
 
