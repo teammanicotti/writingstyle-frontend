@@ -1,16 +1,16 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
+<title>Sidebar HTML</title>
 
 <head>
   <base target="_top">
-    <!--<meta http-equiv="Content-Security-Policy" content="default-src none; script-src manicotti.se.rit.edu ajax.googleapis.com">-->
-    <!--<meta http-equiv="Content-Security-Policy" content="default-src *; style-src 'self' ssl.gstatic.com 'unsafe-inline'; script-src 'self' 'unsafe-inline' 'unsafe-eval' ajax.googleapis.com  manicotti.se.rit.edu">-->
+  <!--<meta http-equiv="Content-Security-Policy" content="default-src none; script-src manicotti.se.rit.edu ajax.googleapis.com">-->
+  <!--<meta http-equiv="Content-Security-Policy" content="default-src *; style-src 'self' ssl.gstatic.com 'unsafe-inline'; script-src 'self' 'unsafe-inline' 'unsafe-eval' ajax.googleapis.com  manicotti.se.rit.edu">-->
   <link rel="stylesheet" href="https://ssl.gstatic.com/docs/script/css/add-ons1.css">
   <!-- The CSS package above applies Google styling to buttons and other elements. -->
 
   <style>
     .branding-below {
-      bottom: 0px;
       top: 0;
       height: 100%;
       overflow: hidden;
@@ -33,7 +33,6 @@
 
     .logo {
       vertical-align: middle;
-      vertical-align: middle;
     }
 
     .radio-spacer {
@@ -45,20 +44,20 @@
     }
 
     .recommendationCard {
-        opacity: 0.8;
-        background: #1464f6;
-        border-radius: 15px;
-        padding: 15px;
-        text-align:left;
-        overflow: hidden;
-        margin-top: 5px;
+      opacity: 0.8;
+      background: #1464f6;
+      border-radius: 15px;
+      padding: 15px;
+      text-align:left;
+      overflow: hidden;
+      margin-top: 5px;
     }
 
     .recommendationCard:hover {
-        opacity: 1;
-        box-shadow: 0 0 8px grey;
-        transition-duration: 150ms;
-        transition-property: box-shadow;
+      opacity: 1;
+      box-shadow: 0 0 8px grey;
+      transition-duration: 150ms;
+      transition-property: box-shadow;
     }
 
     .pargraphLabel{
@@ -89,6 +88,29 @@
       visibility: hidden;
     }
 
+    #aboutDiv{
+      padding-top: 5px;
+      padding-bottom: 5px;
+    }
+
+    #about{
+      font: 15px arial;
+      padding-right: 10px;
+      padding-left: 10px;
+      padding-top: 2px;
+      padding-bottom: 2px;
+
+      background: #1464f6;
+      border-radius: 5px;
+      text-align:center;
+      overflow: hidden;
+
+      color: white;
+      cursor: default;
+      width: 10%;
+      margin: auto;
+    }
+
     #settingsIcon {
       height: 20px;
       width: 20px;
@@ -107,29 +129,23 @@
 
 
     .recHeader{
-        text-align: center;
-        display: flex;
-        justify-content: space-between;
+      text-align: center;
     }
 
     .recHeaderText{
-        text-align:left;
-        color: white;
-        float:left;
-        font: 1.1rem arial;
-        padding-right: 4px;
-        font-weight: bold;
-    }
+      text-align:left;
+      color: white;
+      float:left;
+      font: 20px arial;
+      width: 80%;
 
-    .recIconThumbContainer{
-      display: flex;
     }
 
     .recIconThumb{
-        float:right;
-        width:20px;
-        height:20px;
-        margin-right: 2px;
+      float:right;
+      width:20px;
+      height:20px;
+      margin-right: 2px;
     }
 
     .recIconThumb:hover{
@@ -138,15 +154,14 @@
     }
 
     .recText{
-        color: white;
-        float: left;
-        font: 12px arial;
-        padding-top: 5px;
+      color: white;
+      float: left;
+      font: 12px arial;
+      padding-top: 5px;
     }
 
     .recSubTitle{
-        font-style: italic;
-        font-size: 0.9rem;
+      font-style: italic;
     }
 
 
@@ -165,10 +180,10 @@
 
     #options {
       background: white;
-      text-align:right;
       overflow: hidden;
       cursor: default;
       display: none;
+      text-align:center;
     }
 
     .paragraph_recs{
@@ -198,6 +213,7 @@
       align-items: center;
       padding-top: 5px;
       padding-left: 10px;
+      padding-bottom: 10px;
     }
 
     #refreshPng{
@@ -217,74 +233,77 @@
       display: block;
       overflow: auto;
     }
-    
+
     .rotate-center {
       opacity: 0.5;
       transition: opacity 0.6s ease-in-out;
-	  -webkit-animation: rotate-center 0.6s ease-in-out 0s infinite;
-	          animation: rotate-center 0.6s ease-in-out 0s infinite;
+      -webkit-animation: rotate-center 0.6s ease-in-out 0s infinite;
+      animation: rotate-center 0.6s ease-in-out 0s infinite;
     }
-    
+
     @-webkit-keyframes rotate-center {
       0% {
         -webkit-transform: rotate(0);
-                transform: rotate(0);
+        transform: rotate(0);
       }
-    
+
       100% {
         -webkit-transform: rotate(360deg);
-                transform: rotate(360deg);
+        transform: rotate(360deg);
       }
-   }
-    
-   @keyframes rotate-center {
-     0% {
-      -webkit-transform: rotate(0);
-              transform: rotate(0);
     }
-  
-    100% {
-      -webkit-transform: rotate(360deg);
-              transform: rotate(360deg);
+
+    @keyframes rotate-center {
+      0% {
+        -webkit-transform: rotate(0);
+        transform: rotate(0);
+      }
+
+      100% {
+        -webkit-transform: rotate(360deg);
+        transform: rotate(360deg);
+      }
     }
-  }
 
 
   </style>
 </head>
 
 <body>
-  <div class="sidebar branding-below">
-    <div id="options">
-      <div id="clearHidden">
-        Clear Hidden Items
-      </div>
-      <div id="refresh_rate">
-        Refresh Rate:
-        <select id="refresh_interval">
-          <option value="none">Manual</option>
-          <option value="thirty_sec">30s</option>
-          <option value="one_min" selected="selected">1m</option>
-          <option value="two_min">2m</option>
-          <option value="five_min">5m</option>
-        </select>
-      </div>
+<div class="sidebar branding-below">
+  <div id="options">
+    <div id="clearHidden">
+      Clear Hidden Items
     </div>
-    <div id="pargraphOneSettings">
-      <div id="paragraphOne">
-        Paragraph: 1
-        <img id='paragraph_1' class='collapse' src='https://manicotti.se.rit.edu/plus.png' alt='plus'>
-      </div>
-      <img id='settingsIcon' src="https://manicotti.se.rit.edu/settings.png" alt="settings">
+    <div id="refresh_rate">
+      Refresh Rate:
+      <select id="refresh_interval">
+        <option value="none">Manual</option>
+        <option value="thirty_sec">30s</option>
+        <option value="one_min" selected="selected">1m</option>
+        <option value="two_min">2m</option>
+        <option value="five_min">5m</option>
+      </select>
     </div>
-    <div id="recommendations">
-        <!--Recommendation cards load here -->
-      </div>
-    <div id="analyzeBtn">
-      Analyze
-      <img id="refreshPng" src="https://img.icons8.com/windows/32/000000/refresh.png">
+    <div id="aboutDiv">
+      <a id="about" href="http://www.se.rit.edu/~manicotti/#/" target="_blank">About</a>
     </div>
   </div>
+  <div id="pargraphOneSettings">
+    <div id="paragraphOne">
+      Paragraph: 1
+      <img id='paragraph_1' class='collapse' src='https://manicotti.se.rit.edu/plus.png' alt='plus'>
+    </div>
+    <img id='settingsIcon' src="https://manicotti.se.rit.edu/settings.png" alt="settings">
+  </div>
+  <div id="recommendations">
+    <!--Recommendation cards load here -->
+  </div>
+  <div id="analyzeBtn">
+    Analyze
+    <img id="refreshPng" src="https://img.icons8.com/windows/32/000000/refresh.png" alt="refresh loading img">
+  </div>
+</div>
 </body>
 <script src="//ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
 <script>
@@ -309,363 +328,364 @@
     }
   }
 
-    let undo_items = new Stack();
-    let redo_items = new Stack();
-    var timeoutObj;
-    /**
-     * Document ready: analyze
-     **/
-    $(document).ready(function () {
-      scanDocument();
-      var interval = localStorage.getItem("refresh_interval");
-      if(interval !== null) {
-        $('#refresh_interval').val(interval); //Change will trigger update
-        setRefreshInterval(interval);
-      }
-      else{
-        timeoutObj = window.setInterval(scanDocument, 60000);
-      }
-    });
+  let undo_items = new Stack();
+  let redo_items = new Stack();
+  var timeoutObj;
+  /**
+   * Document ready: analyze
+   **/
+  $(document).ready(function () {
+    scanDocument();
+    var interval = localStorage.getItem("refresh_interval");
+    if(interval !== null) {
+      $('#refresh_interval').val(interval); //Change will trigger update
+      setRefreshInterval(interval);
+    }
+    else{
+      timeoutObj = window.setInterval(scanDocument, 60000);
+    }
+  });
 
-    $('#refresh_interval').on("change",  function () {
-      setRefreshInterval($("#refresh_interval option:selected" ).val());
-    });
+  $('#refresh_interval').on("change",  function () {
+    setRefreshInterval($("#refresh_interval option:selected" ).val());
+  });
 
-    function setRefreshInterval(value){
-      var timeout;
-      switch (value) {
-        case "none":
-          timeout = -1;
-          break;
-        case "thirty_sec":
-          timeout = 30;
-          break;
-        case "two_min":
-          timeout = 120;
-          break;
-        case "five_min":
-          timeout = 300;
-          break;
-        default:
-        case "one_min":
-          timeout = 60;
-          break;
-      }
-      localStorage.setItem("refresh_interval", value);
-      window.clearTimeout(timeoutObj);
-      if(timeout > -1){
-        timeoutObj = window.setInterval(scanDocument, timeout * 1000);
-      }
+  function setRefreshInterval(value){
+    var timeout;
+    switch (value) {
+      case "none":
+        timeout = -1;
+        break;
+      case "thirty_sec":
+        timeout = 30;
+        break;
+      case "two_min":
+        timeout = 120;
+        break;
+      case "five_min":
+        timeout = 300;
+        break;
+      default:
+      case "one_min":
+        timeout = 60;
+        break;
+    }
+    localStorage.setItem("refresh_interval", value);
+    window.clearTimeout(timeoutObj);
+    if(timeout > -1){
+      timeoutObj = window.setInterval(scanDocument, timeout * 1000);
+    }
+  }
+
+  /**Undo/redo key captures**/
+  $(document).keydown(function (e) {
+    if( e.which === 90 && e.metaKey && e.shiftKey ){
+      UndoRedo(false);
+    }
+    else if( e.which === 90 && e.metaKey){
+      UndoRedo(true);
+    }
+  });
+
+  /**On scroll, dynamically show/hide the options**/
+  $('#recommendations').on('scroll', function() {
+    if ($(this).scrollTop() > 5) {
+      $("#pargraphOneSettings").css("display", "none");
+      SetOptionsVisible(false);
+    }
+    else {
+      $("#pargraphOneSettings").css("display", "flex");
+    }
+  });
+
+  function UndoRedo(isUndo){
+    var element;
+    if(isUndo){
+      element = undo_items.pop();
+    }
+    else {
+      element = redo_items.pop();
     }
 
-    /**Undo/redo key captures**/
-    $(document).keydown(function (e) {
-        if( e.which === 90 && e.metaKey && e.shiftKey ){
-            UndoRedo(false);
-        }
-        else if( e.which === 90 && e.metaKey){
-          UndoRedo(true);
-        }
-    });
-
-    /**On scroll, dynamically show/hide the options**/
-    $('#recommendations').on('scroll', function() {
-        if ($(this).scrollTop() > 5) {
-            $("#pargraphOneSettings").css("display", "none");
-            SetOptionsVisible(false);
-        }
-        else {
-            $("#pargraphOneSettings").css("display", "flex");
-        }
-      });
-
-    function UndoRedo(isUndo){
-      var element;
+    if(element !== null) {
+      //Add it back
+      if(element["action"] === "remove"){
+        $(element["html"]).hide().prependTo($("#" + element["parent"])).fadeIn();
+        element["action"] = "add";
+        UpdateHidden(true, element["recID"])
+      }
+      //Remove it
+      else{
+        var el = $("#" + element["recID"] + ".recommendationCard");
+        el.animate({opacity: '0'}, 200, function(){
+          el.animate({height: '0px'}, 200, function(){
+            el.remove();
+          });
+        });
+        element["action"] = "remove";
+        UpdateHidden(false, element["recID"])
+      }
       if(isUndo){
-        element = undo_items.pop();
+        redo_items.push(element);
       }
       else {
-        element = redo_items.pop();
-      }
-      
-      if(element !== null) {
-        if(element["action"] === "remove"){
-          $(element["html"]).hide().prependTo($("#" + element["parent"])).fadeIn();
-          element["action"] = "add";
-          UpdateHidden(true, element["recID"])
-        }
-        //Remove it TODO: update hidden items
-        else{
-          var el = $("#" + element["recID"] + ".recommendationCard");
-          el.animate({opacity: '0'}, 200, function(){
-            el.animate({height: '0px'}, 200, function(){
-              el.remove();
-            });
-          });
-          element["action"] = "remove";
-          UpdateHidden(false, element["recID"])
-        }
-        if(isUndo){
-          redo_items.push(element);
-        }
-        else {
-          undo_items.push(element);
-        }
-      }
-      else{
-        console.log("Nothing to undo/redo!");
+        undo_items.push(element);
       }
     }
-
-    function UpdateHidden(remove, id) {
-      console.log("Updating hidden");
-      google.script.run
-        .withSuccessHandler(function (docID) {
-          if(docID === null) {
-            console.log("Failed to obtain document id");
-          }
-          else{
-            var hiddenRecs = localStorage.getItem(docID);
-            if (hiddenRecs !== null && hiddenRecs !== "") {
-              let hiddenEntries = JSON.parse(hiddenRecs);
-              //hiddenEntries should be an object structured: {"hidden":[hidden1, hidden2,...]}
-              //Remove from list of hidden items
-              if (remove) {
-                console.log("Removing id: " + id );
-                console.log("Index: " + hiddenEntries["hidden"].indexOf(id.toString()));
-                hiddenEntries["hidden"].splice(hiddenEntries["hidden"].indexOf(id.toString()), 1);
-              }
-              //Add to list of hidden items
-              else {
-                console.log("Adding id: " + id );
-                hiddenEntries["hidden"].push(id.toString());
-              }
-              localStorage.setItem(docID, JSON.stringify(hiddenEntries))
-            }
-            else {
-              console.log("Hidden was null");
-            }
-          }
-        })
-        .withFailureHandler({})
-        .getDocumentID();
+    else{
+      console.log("Nothing to undo/redo!");
     }
+  }
 
-    function GenerateUndoObj(parent, action, recID, html){
-      return{
-        "parent" : parent,
-        "action" : action,
-        "recID" : recID,
-        "html" : html
-      }
-    }
-
-    /** Toggle settings visible **/
-    $('#recommendations').on('click', '.paragraph_recs', function(){
-        SetOptionsVisible(false);
-    });
-
-    /** Toggle settings visible **/
-    $('#settingsIcon').click(function () {
-      SetOptionsVisible(!($('#options').css("display") ===  "block"));
-    });
-    function SetOptionsVisible(visible){
-        if(visible){
-            $('#options').slideDown(function() {
-               $('#options').css("display", "block");
-            });
-        }
-        else {
-          $('#options').slideUp(function () {
-            $('#options').css("display", "none");
-          });
-        }
-    }
-
-    /** Clear hidden items **/
-    $('#clearHidden').click(function () {
-        google.script.run
+  function UpdateHidden(remove, id) {
+    console.log("Updating hidden");
+    google.script.run
             .withSuccessHandler(function (docID) {
-                if(docID === null) {
-                    console.log("Failed to obtain document id");
+              if(docID === null) {
+                console.log("Failed to obtain document id");
+              }
+              else{
+                var hiddenRecs = localStorage.getItem(docID);
+                if (hiddenRecs !== null && hiddenRecs !== "") {
+                  let hiddenEntries = JSON.parse(hiddenRecs);
+                  //hiddenEntries should be an object structured: {"hidden":[hidden1, hidden2,...]}
+                  //Remove from list of hidden items
+                  if (remove) {
+                    console.log("Removing id: " + id );
+                    console.log("Index: " + hiddenEntries["hidden"].indexOf(id.toString()));
+                    hiddenEntries["hidden"].splice(hiddenEntries["hidden"].indexOf(id.toString()), 1);
+                  }
+                  //Add to list of hidden items
+                  else {
+                    console.log("Adding id: " + id );
+                    hiddenEntries["hidden"].push(id.toString());
+                  }
+                  localStorage.setItem(docID, JSON.stringify(hiddenEntries))
                 }
                 else {
-                    localStorage.removeItem(docID);
-                    SetOptionsVisible(false);
-                    scanDocument();
+                  console.log("Hidden was null");
                 }
+              }
             })
             .withFailureHandler({})
             .getDocumentID();
-    });
+  }
 
-    /** Analyze button clicked**/
-    $('#analyzeBtn').click(function () {
-        scanDocument();
-    });
+  function GenerateUndoObj(parent, action, recID, html){
+    return{
+      "parent" : parent,
+      "action" : action,
+      "recID" : recID,
+      "html" : html
+    }
+  }
 
-    /** + clicked to toggle section collapsed **/
-    $('#recommendations').on('click', '.collapse', function(){
-      toggle_section_visble(this.id)
-    });
-    
-    $('.collapse').click(function(){
-      toggle_section_visble(this.id);
-    });
+  /** Toggle settings visible **/
+  $('#recommendations').on('click', '.paragraph_recs', function(){
+    SetOptionsVisible(false);
+  });
 
-    function toggle_section_visble(id){
-      var item_to_toggle_id = id.replace("paragraph", "recommendations");
-      var item_to_toggle = $("#"+item_to_toggle_id);
-      var item_collapse = $("#" + id);
-      
-      if (item_to_toggle.children().length > 0) {
-        item_collapse.addClass("rotate-center");
-      }
-      
-      if(item_to_toggle.css("display") ===  "block"){
-        item_to_toggle.slideUp("slow", function() {
-          item_to_toggle.css("display", "none");
-          item_collapse.removeClass("rotate-center");
-        });
-      }
-      else{
-        item_to_toggle.slideDown("slow", function() {
-          item_to_toggle.css("display", "block");
-          item_collapse.removeClass("rotate-center");
-        });
-      }
+  /** Toggle settings visible **/
+  $('#settingsIcon').click(function () {
+    SetOptionsVisible(!($('#options').css("display") ===  "block"));
+  });
+  function SetOptionsVisible(visible){
+    if(visible){
+      $('#options').slideDown(function() {
+        $('#options').css("display", "block");
+      });
+    }
+    else {
+      $('#options').slideUp(function () {
+        $('#options').css("display", "none");
+      });
+    }
+  }
+
+  /** Clear hidden items **/
+  $('#clearHidden').click(function () {
+    google.script.run
+            .withSuccessHandler(function (docID) {
+              if(docID === null) {
+                console.log("Failed to obtain document id");
+              }
+              else {
+                localStorage.removeItem(docID);
+                SetOptionsVisible(false);
+                scanDocument();
+              }
+            })
+            .withFailureHandler({})
+            .getDocumentID();
+  });
+
+  /** Analyze button clicked**/
+  $('#analyzeBtn').click(function () {
+    scanDocument();
+  });
+
+  /** + clicked to toggle section collapsed **/
+  $('#recommendations').on('click', '.collapse', function(){
+    toggle_section_visble(this.id)
+  });
+
+  $('.collapse').click(function(){
+    toggle_section_visble(this.id);
+  });
+
+  function toggle_section_visble(id){
+    var item_to_toggle_id = id.replace("paragraph", "recommendations");
+    var item_to_toggle = $("#"+item_to_toggle_id);
+    var item_collapse = $("#" + id);
+
+    if (item_to_toggle.children().length > 0) {
+      item_collapse.addClass("rotate-center");
     }
 
-    /** Thumbs up clicked */
-    $('#recommendations').on('click', '.thumbs_up', function() {
-        var selected_index = 0;
-        var is_multivalue = $('.radio_' + this.id).length > 1;
-        if(is_multivalue){
-          var selected_item = $('.radio_' + this.id + ':checked');
-          if(selected_item !== null && selected_item.length === 1){
-            selected_index = selected_item.attr("id");
-          }
-          else {
-            google.script.run
-                    .withSuccessHandler()
-                    .withFailureHandler()
-                    .ShowErrorMultiSelect(selected_item.length);
-            return;
-          }
-        }
-        thumbClicked(this.id, true, selected_index);
-    });
+    if(item_to_toggle.css("display") ===  "block"){
+      item_to_toggle.slideUp("slow", function() {
+        item_to_toggle.css("display", "none");
+        item_collapse.removeClass("rotate-center");
+      });
+    }
+    else{
+      item_to_toggle.slideDown("slow", function() {
+        item_to_toggle.css("display", "block");
+        item_collapse.removeClass("rotate-center");
+      });
+    }
+  }
 
-    /** Thumbs down clicked **/
-    $('#recommendations').on('click', '.thumbs_down', function() {
-        thumbClicked(this.id, false, -1);
-    });
-
-    /** Generic thumb up/down clicked method **/
-    function thumbClicked(recID, accepted, accepted_ans){
-       //Delete card
-       var el = $("#" + recID + ".recommendationCard");
-       el.animate({opacity: '0'}, 200, function(){
-         el.animate({height: '0px'}, 200, function(){
-           el.remove();
-         });
-       });
-       
-      //Add to undo stack
-      undo_items.push(GenerateUndoObj(el.parent().attr('id'), "remove", recID, el.prop('outerHTML')));
-
-      if(accepted) {
-            google.script.run
-                .withSuccessHandler()
-                .withFailureHandler()
-                .DoSubstitution(recID, accepted_ans);
-        }
-        else{
-            google.script.run
-                .withSuccessHandler()
-                .withFailureHandler()
-                .UndoHighlighting(recID);
-        }
+  /** Thumbs up clicked */
+  $('#recommendations').on('click', '.thumbs_up', function() {
+    var selected_index = 0;
+    var is_multivalue = $('.radio_' + this.id).length > 1;
+    if(is_multivalue){
+      var selected_item = $('.radio_' + this.id + ':checked');
+      if(selected_item !== null && selected_item.length === 1){
+        selected_index = selected_item.attr("id");
+      }
+      else {
         google.script.run
+                .withSuccessHandler()
+                .withFailureHandler()
+                .ShowErrorMultiSelect(selected_item.length);
+        return;
+      }
+    }
+    thumbClicked(this.id, true, selected_index);
+  });
+
+  /** Thumbs down clicked **/
+  $('#recommendations').on('click', '.thumbs_down', function() {
+    thumbClicked(this.id, false, -1);
+  });
+
+  /** Generic thumb up/down clicked method **/
+  function thumbClicked(recID, accepted, accepted_ans){
+    //Delete card
+    var el = $("#" + recID + ".recommendationCard");
+    el.animate({opacity: '0'}, 200, function(){
+      el.animate({height: '0px'}, 200, function(){
+        el.remove();
+      });
+    });
+
+    //Add to undo stack
+    undo_items.push(GenerateUndoObj(el.parent().attr('id'), "remove", recID, el.prop('outerHTML')));
+
+    if(accepted) {
+      google.script.run
+              .withSuccessHandler()
+              .withFailureHandler()
+              .DoSubstitution(recID, accepted_ans);
+    }
+    else{
+      google.script.run
+              .withSuccessHandler()
+              .withFailureHandler()
+              .UndoHighlighting(recID);
+    }
+    google.script.run
             .withSuccessHandler(function (docID) {
-                if(docID === null) {
-                    console.log("Failed to obtain document id");
-                }
-                else {
-                    google.script.run         //ajax to API that the user hid that card(UID)
+              if(docID === null) {
+                console.log("Failed to obtain document id");
+              }
+              else {
+                google.script.run         //ajax to API that the user hid that card(UID)
                         .withSuccessHandler()
                         .withFailureHandler()
-                        .ThumbsClicked(recID, accepted, recommendationType);
+                        .ThumbsClicked(recID, accepted);
 
-                    var hiddenRecs = localStorage.getItem(docID);
-                    if (hiddenRecs === null || hiddenRecs === "") {
-                        let newEntry = {"hidden": [recID.toString()]};
-                        localStorage.setItem(docID, JSON.stringify(newEntry))
-                    }
-                    else {
-                        let hiddenEntries = JSON.parse(hiddenRecs);
-                        //hiddenEntries should be an object structured: {"hidden":[hidden1, hidden2,...]}
-                        hiddenEntries["hidden"].push(recID.toString());
-                        localStorage.setItem(docID, JSON.stringify(hiddenEntries))
-                    }
-                }
-            })
-            .withFailureHandler({})
-            .getDocumentID();
-    }
-
-    /**
-     * Request the server to scan the opened document.
-     */
-    function scanDocument() {
-        console.log("Analyzing");
-        $("#resultsDiv").hide();
-        $('#systemErrorDiv').hide();
-        $('#simpleToComplexErrorsDiv').hide();
-        $('#noErrorsDiv').hide();
-        $('#errorsFoundMsg').hide();
-        $('#simpleToComplexErrorListDiv').empty();
-        $('#passiveHardReccListDiv').empty();
-        $('#passiveHardReccDiv').hide();
-        $('#passiveSoftReccListDiv').empty();
-        $('#passiveSoftReccDiv').hide();
-        $('#refreshPng').show();
-
-        google.script.run
-            .withSuccessHandler(function (docID) {
-                if(docID === null) {
-                    console.log("Failed to obtain document id");
+                var hiddenRecs = localStorage.getItem(docID);
+                if (hiddenRecs === null || hiddenRecs === "") {
+                  let newEntry = {"hidden": [recID.toString()]};
+                  localStorage.setItem(docID, JSON.stringify(newEntry))
                 }
                 else {
-                    var hiddenStore = localStorage.getItem(docID);
-                    var hiddenVals = hiddenStore !== null ? JSON.parse(hiddenStore) : null;
-                    google.script.run
-                        .withSuccessHandler(function (result) { //result = [html, newCache]
-                            //scanDocument returns structured html, no just put it in the correct div
-                            $('#recommendations').html(result[0]);
-                            $('#refreshPng').hide();
-                            $('#paragraphOne').css('visibility', 'visible');
-                            if(result[1].length > 0) { //Update with the calculated diff of hidden items
-                                localStorage.setItem(docID, JSON.stringify({"hidden":result[1]}))
-                            }
-                            else //We should not be hiding anything, delete out local store
-                            {
-                                localStorage.removeItem(docID);
-                            }
-                        })
-                        .withFailureHandler(
-                            function (reason) {
-                                console.log("Failed to scan document because: " + reason);
-                                $('#refreshPng').hide();
-                                $('#systemErrorDiv').show();
-                            }
-                        )
-                        .scanDocument(hiddenVals === null ? null : hiddenVals["hidden"]);
+                  let hiddenEntries = JSON.parse(hiddenRecs);
+                  //hiddenEntries should be an object structured: {"hidden":[hidden1, hidden2,...]}
+                  hiddenEntries["hidden"].push(recID.toString());
+                  localStorage.setItem(docID, JSON.stringify(hiddenEntries))
                 }
+              }
             })
             .withFailureHandler({})
             .getDocumentID();
-    }
+  }
+
+  /**
+   * Request the server to scan the opened document.
+   */
+  function scanDocument() {
+    console.log("Analyzing");
+    $("#resultsDiv").hide();
+    $('#systemErrorDiv').hide();
+    $('#simpleToComplexErrorsDiv').hide();
+    $('#noErrorsDiv').hide();
+    $('#errorsFoundMsg').hide();
+    $('#simpleToComplexErrorListDiv').empty();
+    $('#passiveHardReccListDiv').empty();
+    $('#passiveHardReccDiv').hide();
+    $('#passiveSoftReccListDiv').empty();
+    $('#passiveSoftReccDiv').hide();
+    $('#refreshPng').show();
+
+    google.script.run
+            .withSuccessHandler(function (docID) {
+              if(docID === null) {
+                console.log("Failed to obtain document id");
+              }
+              else {
+                var hiddenStore = localStorage.getItem(docID);
+                var hiddenVals = hiddenStore !== null ? JSON.parse(hiddenStore) : null;
+                google.script.run
+                        .withSuccessHandler(function (result) { //result = [html, newCache]
+                          //scanDocument returns structured html, no just put it in the correct div
+                          $('#recommendations').html(result[0]);
+                          $('#refreshPng').hide();
+                          $('#paragraphOne').css('visibility', 'visible');
+                          if(result[1].length > 0) { //Update with the calculated diff of hidden items
+                            localStorage.setItem(docID, JSON.stringify({"hidden":result[1]}))
+                          }
+                          else //We should not be hiding anything, delete out local store
+                          {
+                            localStorage.removeItem(docID);
+                          }
+                        })
+                        .withFailureHandler(
+                                function (reason) {
+                                  console.log("Failed to scan document because: " + reason);
+                                  $('#refreshPng').hide();
+                                  $('#systemErrorDiv').show();
+                                }
+                        )
+                        .scanDocument(hiddenVals === null ? null : hiddenVals["hidden"]);
+              }
+            })
+            .withFailureHandler({})
+            .getDocumentID();
+  }
 
 
 </script>

@@ -26,8 +26,8 @@ var cache = CacheService.getDocumentCache();
  */
 function onOpen(e) {
     DocumentApp.getUi().createAddonMenu()
-    .addItem('Start', 'showSidebar')
-    .addToUi();
+        .addItem('Start', 'showSidebar')
+        .addToUi();
 }
 
 function onClose(e) {
@@ -52,7 +52,7 @@ function onClose(e) {
  *     AuthMode.NONE.)
  */
 function onInstall(e) {
-  onOpen(e);
+    onOpen(e);
 }
 
 /**
@@ -92,7 +92,6 @@ function UpdateRecommendationsList(data, hiddenItems){
     var paragraphs = {};
     var mostRecentRecs = [];
     var results = data[0].results;
-    var cache = CacheService.getDocumentCache();
 
     if(data === undefined){
         console.log("Data was not defined");
@@ -105,6 +104,9 @@ function UpdateRecommendationsList(data, hiddenItems){
     if(rangeObj !== null){
         text.setBackgroundColor(rangeObj.getStartOffset(), rangeObj.getEndOffsetInclusive(), '#ffffff')
     }
+
+
+    cache.put("current_recs", JSON.stringify(results));
 
     results.forEach(function(rec) {
         mostRecentRecs.push(rec['uuid']);
@@ -147,18 +149,18 @@ function UpdateRecommendationsList(data, hiddenItems){
         var num = (parseInt(paragraphNum, 10) + 1);
         if(paragraphNum > 0){
             html += "<div>" +
-                        "<div class='pargraphLabel'>" +
-                            "Paragraph: " + num + "" +
-                            "<img id='paragraph_" + num + "' class='collapse' src='https://manicotti.se.rit.edu/plus.png' alt='plus'>" +
-                        "</div>\n" +
-                    "<div class='paragraph_recs' id='recommendations_" + num + "'>" + paragraphs[paragraphNum]  + "</div>";
-                "</div>\n"
+                "<div class='pargraphLabel'>" +
+                "Paragraph: " + num + "" +
+                "<img id='paragraph_" + num + "' class='collapse' src='https://manicotti.se.rit.edu/plus.png' alt='plus'>" +
+                "</div>\n" +
+                "<div class='paragraph_recs' id='recommendations_" + num + "'>" + paragraphs[paragraphNum]  + "</div>";
+            "</div>\n"
         }
         else{
             //First item shouldn't have a title because its baked in with the settings options
             html += "<div>" +
-                        "<div class='paragraph_recs' id='recommendations_1'>" + paragraphs[paragraphNum]  + "</div>";
-                    "</div>"
+                "<div class='paragraph_recs' id='recommendations_1'>" + paragraphs[paragraphNum]  + "</div>";
+            "</div>"
         }
     });
 
@@ -274,10 +276,8 @@ function getRecommendation(document) {
     var results = [];
     var paragraphs = document.getBody().getParagraphs();
     var paragraph_text = [];
-    var similarityThreshold = parseFloat(PropertiesService.getScriptProperties().getProperty("similarityThreshold"));
-  
     for (var i = 0; i < paragraphs.length; i++) {
-      paragraph_text.push(paragraphs[i].getText());
+        paragraph_text.push(paragraphs[i].getText());
     }
 
     var payload = {
