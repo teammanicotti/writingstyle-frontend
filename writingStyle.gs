@@ -92,6 +92,7 @@ function UpdateRecommendationsList(data, hiddenItems){
     var paragraphs = {};
     var mostRecentRecs = [];
     var results = data[0].results;
+    var cache = CacheService.getDocumentCache();
 
     if(data === undefined){
         console.log("Data was not defined");
