@@ -1,11 +1,10 @@
-var analyze_url_path = PropertiesService.getScriptProperties().getProperty("apiHost") + "/analyze";
-var analytics_url_path = PropertiesService.getScriptProperties().getProperty("apiHost") + "/analytics";
+var apiHost = "https://manicotti.se.rit.edu";
+//var analyze_url_path = PropertiesService.getScriptProperties().getProperty("apiHost") + "/analyze";
+var analyze_url_path = apiHost + "/analyze";
+//var rec_ack_path = PropertiesService.getScriptProperties().getProperty("apiHost") + "/recAck";
+var rec_ack_path = apiHost + "/recAck";
 var similarityThreshold = parseFloat(PropertiesService.getScriptProperties().getProperty("similarityThreshold"));
-var PurgeInterval = 10;
-
-var analyzationsSinceLastPurge = 0;
-var activeFileID = DocumentApp.getActiveDocument().getId();
-
+var cache = CacheService.getDocumentCache();
 /**
  * @OnlyCurrentDoc
  *
@@ -29,6 +28,16 @@ function onOpen(e) {
     DocumentApp.getUi().createAddonMenu()
     .addItem('Start', 'showSidebar')
     .addToUi();
+}
+
+function onClose(e) {
+    var body = DocumentApp.getActiveDocument().getBody();
+    var text = body.editAsText();
+    var rangeObj = body.findText(".*");
+
+    if(rangeObj !== null){
+        text.setBackgroundColor(rangeObj.getStartOffset(), rangeObj.getEndOffsetInclusive(), '#ffffff')
+    }
 }
 
 /**
@@ -83,17 +92,27 @@ function UpdateRecommendationsList(data, hiddenItems){
     var paragraphs = {};
     var mostRecentRecs = [];
     var results = data[0].results;
+    var cache = CacheService.getDocumentCache();
 
     if(data === undefined){
         console.log("Data was not defined");
         return
     }
-    Logger.log(hiddenItems);
+    var body = DocumentApp.getActiveDocument().getBody();
+    var text = body.editAsText();
+    var rangeObj = body.findText(".*");
+
+    if(rangeObj !== null){
+        text.setBackgroundColor(rangeObj.getStartOffset(), rangeObj.getEndOffsetInclusive(), '#ffffff')
+    }
+
+
+    cache.put("current_recs", JSON.stringify(results));
+
     results.forEach(function(rec) {
         mostRecentRecs.push(rec['uuid']);
         if(hiddenItems === null || hiddenItems.toString().indexOf(rec['uuid']) === -1){ //If the user has not already accepted/rejected it
             var para_index = rec['paragraph_index'];
-            console.log("Paragraph index: " + para_index);
             if (!(para_index in paragraphs)) {
                 paragraphs[para_index] = ""
             }
@@ -102,29 +121,75 @@ function UpdateRecommendationsList(data, hiddenItems){
                     " <div class=recHeader>\n" +
                     "   <div class=recHeaderText>" +
                     "     " + GetUserFriendlyType(rec['recommendation_type']) + "\n" +
-                    "     <div class=recSubTitle>" + rec['original_text'] + "</div>\n" +
+                    "     <div class=recSubTitle>" + rec['text_to_highlight'] + "</div>\n" +
                     "   </div>\n" +
-                    "   <div class=recIconThumbContainer>" +
-                    "     <img id='" + rec['uuid'] + "' class='recIconThumb thumbs_down'" +  "data-recommendationtype=\"" + rec['recommendation_type'] + "\" src=\"http://manicotti.se.rit.edu/thumbs-down.png\" alt=\"thumbs down\">\n" +
-                    "     <img id='" + rec['uuid'] + "' class='recIconThumb thumbs_up' " + "data-recommendationtype=\"" + rec['recommendation_type'] + "\" src=\"http://manicotti.se.rit.edu/thumbs-up.png\" alt=\"thumbs up\">\n" +
-                    "   </div>\n" +
-                    "  </div>\n" +
-                    "  <div class=recText>" + GetRecString(rec['recommendation_type']) + rec['new_values'][0] + "</div>\n" +
-                    "</div>\n";
+                    "     <img id='" + rec['uuid'] + "' class='recIconThumb thumbs_down' src=\"https://manicotti.se.rit.edu/thumbs-down.png\" alt=\"thumbs down\">\n" +
+                    "     <img id='" + rec['uuid'] + "' class='recIconThumb thumbs_up' src=\"https://manicotti.se.rit.edu/thumbs-up.png\" alt=\"thumbs up\">\n" +
+                    "   </div>\n";
+                if(rec['new_values'].length > 1){
+                    var counter = 0;
+                    paragraphs[para_index] += "<div class=recText id='newValueOptions_" + rec['uuid'] + "'>";
+                    rec['new_values'].forEach(function (newVal) {
+                        paragraphs[para_index] += "<input name='" + rec['uuid'] + "' type='radio' class='radio_" + rec['uuid'] + "' id='" + counter + "'/>";
+                        paragraphs[para_index] += "<span id='value_" + rec['uuid'] + "' class='" + counter + "'>" + rec['new_values'][counter] + "</span><br>";
+                        counter++;
+                    });
+                    paragraphs[para_index] +="</div>";
+                }
+                else{
+                    paragraphs[para_index] += "<div class=recText>" + GetRecString(rec['recommendation_type']) + rec['new_values'][0] + "</div>\n";
+                }
+
+                paragraphs[para_index] +="</div>\n";
+
+                HighlightText(rec['original_text'], '#f69e42')
             }
         }
     });
     Object.keys(paragraphs).sort().forEach(function(paragraphNum){
-        html += "<div>\n" +
-            "<div class='pargraphLabel'>Paragraph: " + paragraphNum + "</div>\n" +
-            paragraphs[paragraphNum] +
-            "</div>\n"
+        var num = (parseInt(paragraphNum, 10) + 1);
+        if(paragraphNum > 0){
+            html += "<div>" +
+                        "<div class='pargraphLabel'>" +
+                            "Paragraph: " + num + "" +
+                            "<img id='paragraph_" + num + "' class='collapse' src='https://manicotti.se.rit.edu/plus.png' alt='plus'>" +
+                        "</div>\n" +
+                    "<div class='paragraph_recs' id='recommendations_" + num + "'>" + paragraphs[paragraphNum]  + "</div>";
+                "</div>\n"
+        }
+        else{
+            //First item shouldn't have a title because its baked in with the settings options
+            html += "<div>" +
+                        "<div class='paragraph_recs' id='recommendations_1'>" + paragraphs[paragraphNum]  + "</div>";
+                    "</div>"
+        }
     });
 
     //Find items currently in the doc and known to be hidden
     var newCache = calculate_new_hidden_cache(mostRecentRecs, hiddenItems);
 
     return [html, newCache];
+}
+
+function ShowErrorMultiSelect(count) {
+    var ui = DocumentApp.getUi();
+    if(count > 1){
+        ui.alert('Please select only one option');
+    }
+    else {
+        ui.alert('Please select an option');
+    }
+
+}
+
+function HighlightText(stringText, color) {
+    var body = DocumentApp.getActiveDocument().getBody();
+    var text = body.editAsText();
+    var rangeObj = body.findText(stringText);
+
+    if(rangeObj !== null){
+        text.setBackgroundColor(rangeObj.getStartOffset(), rangeObj.getEndOffsetInclusive(), color)
+    }
 }
 
 function GetUserFriendlyType(type){
@@ -161,27 +226,46 @@ function GetRecString(type){
     }
 }
 
+function DoSubstitution(recID, selected_index){
+    var currentRecommendations = JSON.parse(cache.get("current_recs"));
 
-function ThumbsClicked(uuid, accepted, recommendationType){
-    var userKey = Session.getTemporaryActiveUserKey();
-    if(!userKey){
-        userKey = 'unknown';
+    if(currentRecommendations !== null) {
+        currentRecommendations.forEach(function (rec) {
+            if (recID === rec['uuid'] && rec['is_replaceable']) {
+                var body = DocumentApp.getActiveDocument().getBody();
+                HighlightText(rec['original_text'], '#ffffff');
+                //Logger.log("Replacing: '" + rec['original_text'] + "' with '" + rec['new_values'][selected_index] + "'");
+                body.replaceText(rec['original_text'], rec['new_values'][selected_index]);
+                return;
+            }
+        });
     }
-    var payload = {
-        "userKey": userKey, 
-        "recommendationType": recommendationType,
-        "accepted": accepted,
-        "recId": uuid
-    };
+    else {
+        Logger.log("Current recommendations list is null");
+    }
+}
 
-    var options = {
-        "method": "post",
-        "contentType": "application/json",
-        "payload" : JSON.stringify(payload)
-    };
+function UndoHighlighting(recID) {
+    var currentRecommendations = JSON.parse(cache.get("current_recs"));
 
-    Logger.log("thumbsClicked: " + JSON.stringify(payload));
-    UrlFetchApp.fetch(analytics_url_path, options).getContentText();
+    if(currentRecommendations !== null) {
+        currentRecommendations.forEach(function (rec) {
+            if (recID === rec['uuid']) {
+                HighlightText(rec['original_text'], '#ffffff')
+                return;
+            }
+        });
+    }
+    else {
+        Logger.log("Current recommendations list is null");
+    }
+}
+
+
+function ThumbsClicked(uuid, accepted){
+    var options = {"method": "get"};
+    UrlFetchApp.fetch(rec_ack_path + (accepted ? "?accepted=true" : "?accepted=false"), options).getContentText();
+
 }
 
 /**
@@ -193,6 +277,8 @@ function getRecommendation(document) {
     var results = [];
     var paragraphs = document.getBody().getParagraphs();
     var paragraph_text = [];
+    var similarityThreshold = parseFloat(PropertiesService.getScriptProperties().getProperty("similarityThreshold"));
+  
     for (var i = 0; i < paragraphs.length; i++) {
       paragraph_text.push(paragraphs[i].getText());
     }
