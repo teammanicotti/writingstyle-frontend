@@ -105,9 +105,6 @@ function UpdateRecommendationsList(data, hiddenItems){
         text.setBackgroundColor(rangeObj.getStartOffset(), rangeObj.getEndOffsetInclusive(), '#ffffff')
     }
 
-
-    cache.put("current_recs", JSON.stringify(results));
-
     results.forEach(function(rec) {
         mostRecentRecs.push(rec['uuid']);
         if(hiddenItems === null || hiddenItems.toString().indexOf(rec['uuid']) === -1){ //If the user has not already accepted/rejected it
@@ -276,6 +273,8 @@ function getRecommendation(document) {
     var results = [];
     var paragraphs = document.getBody().getParagraphs();
     var paragraph_text = [];
+    var similarityThreshold = parseFloat(PropertiesService.getScriptProperties().getProperty("similarityThreshold"));
+  
     for (var i = 0; i < paragraphs.length; i++) {
       paragraph_text.push(paragraphs[i].getText());
     }
