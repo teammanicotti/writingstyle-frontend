@@ -92,6 +92,7 @@ function UpdateRecommendationsList(data, hiddenItems){
     var paragraphs = {};
     var mostRecentRecs = [];
     var results = data[0].results;
+    var cache = CacheService.getDocumentCache();
 
     if(data === undefined){
         console.log("Data was not defined");
@@ -276,6 +277,8 @@ function getRecommendation(document) {
     var results = [];
     var paragraphs = document.getBody().getParagraphs();
     var paragraph_text = [];
+    var similarityThreshold = parseFloat(PropertiesService.getScriptProperties().getProperty("similarityThreshold"));
+  
     for (var i = 0; i < paragraphs.length; i++) {
       paragraph_text.push(paragraphs[i].getText());
     }
