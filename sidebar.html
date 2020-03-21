@@ -559,17 +559,20 @@
   /** Thumbs up clicked */
   $('#recommendations').on('click', '.thumbs_up', function() {
     var selected_index = 0;
-    var is_multivalue = $('.radio_' + this.id).length > 1;
+    var is_multivalue = $('#newValueOptions_' + this.id) !== null;
     if(is_multivalue){
-      var selected_item = $('.radio_' + this.id + ':checked');
-      if(selected_item !== null && selected_item.length === 1){
-        selected_index = selected_item.attr("id");
+      var selected_item = $('#newValueOptions_' + this.id + ' option:selected');
+      if(selected_item !== null){
+        console.log("Got selected item");
+        console.log(selected_item.text());
+        selected_index = parseInt(selected_item.val());
+        console.log("Selected item " + selected_index);
       }
       else {
         google.script.run
                 .withSuccessHandler()
                 .withFailureHandler()
-                .ShowErrorMultiSelect(selected_item.length);
+                .ShowErrorMultiSelect(0);
         return;
       }
     }
@@ -584,6 +587,7 @@
   /** Generic thumb up/down clicked method **/
   function thumbClicked(recID, accepted, accepted_ans){
     //Delete card
+    console.log("Accepted ans: " + accepted_ans);
     var el = $("#" + recID + ".recommendationCard");
     el.animate({opacity: '0'}, 200, function(){
       el.animate({height: '0px'}, 200, function(){

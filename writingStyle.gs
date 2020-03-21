@@ -110,11 +110,12 @@ function UpdateRecommendationsList(data, hiddenItems){
 
     results.forEach(function(rec) {
         mostRecentRecs.push(rec['uuid']);
-        if(hiddenItems === null || hiddenItems.toString().indexOf(rec['uuid']) === -1){ //If the user has not already accepted/rejected it
+        if(hiddenItems === null || hiddenItems.toString().indexOf(rec['uuid']) === -1) { //If the user has not already accepted/rejected it
             var para_index = rec['paragraph_index'];
             if (!(para_index in paragraphs)) {
                 paragraphs[para_index] = ""
             }
+            var counter = 0;
             if (para_index in paragraphs) {
                 paragraphs[para_index] = paragraphs[para_index] + "<div id=" + rec['uuid'] + " class='recommendationCard'>\n" +
                     " <div class=recHeader>\n" +
@@ -125,21 +126,28 @@ function UpdateRecommendationsList(data, hiddenItems){
                     "     <img id='" + rec['uuid'] + "' class='recIconThumb thumbs_down' src=\"https://manicotti.se.rit.edu/thumbs-down.png\" alt=\"thumbs down\">\n" +
                     "     <img id='" + rec['uuid'] + "' class='recIconThumb thumbs_up' src=\"https://manicotti.se.rit.edu/thumbs-up.png\" alt=\"thumbs up\">\n" +
                     "   </div>\n";
-                if(rec['new_values'].length > 1){
-                    var counter = 0;
-                    paragraphs[para_index] += "<div class=recText id='newValueOptions_" + rec['uuid'] + "'>";
-                    rec['new_values'].forEach(function (newVal) {
-                        paragraphs[para_index] += "<input name='" + rec['uuid'] + "' type='radio' class='radio_" + rec['uuid'] + "' id='" + counter + "'/>";
-                        paragraphs[para_index] += "<span id='value_" + rec['uuid'] + "' class='" + counter + "'>" + rec['new_values'][counter] + "</span><br>";
+                if (rec['new_parts'] !== undefined) {
+                    paragraphs[para_index] += "<div class=recText><span id='value_" + rec['uuid'] + "'>" + rec['new_parts'][0] + "</span><select class='select_StoC' id='newValueOptions_" + rec['uuid'] + "'>";
+                    rec['conjunctions'].forEach(function () {
+                        paragraphs[para_index] += "<option value='" + counter + "'>" + rec['conjunctions'][counter] + "</option>"
                         counter++;
                     });
-                    paragraphs[para_index] +="</div>";
-                }
-                else{
+                    paragraphs[para_index] += "</select><span>" + rec['new_parts'][1] + "</span></div><br>";
+
+                    // else { //TODO remove this old method once new one is integrated
+                    //     paragraphs[para_index] += "<div class=recText id='newValueOptions_" + rec['uuid'] + "'>";
+                    //     rec['new_values'].forEach(function () {
+                    //         paragraphs[para_index] += "<input name='" + rec['uuid'] + "' type='radio' class='radio_" + rec['uuid'] + "' id='" + counter + "'/>";
+                    //         paragraphs[para_index] += "<span id='value_" + rec['uuid'] + "' class='" + counter + "'>" + rec['new_values'][counter] + "</span><br>";
+                    //         counter++;
+                    //     });
+                    //     paragraphs[para_index] +="</div>";
+                    // }
+                } else {
                     paragraphs[para_index] += "<div class=recText>" + GetRecString(rec['recommendation_type']) + rec['new_values'][0] + "</div>\n";
                 }
-
-                paragraphs[para_index] +="</div>\n";
+                paragraphs[para_index] += "</div>\n";
+                Logger.log(paragraphs[para_index]);
 
                 HighlightText(rec['original_text'], '#f69e42')
             }
@@ -233,8 +241,12 @@ function DoSubstitution(recID, selected_index){
             if (recID === rec['uuid'] && rec['is_replaceable']) {
                 var body = DocumentApp.getActiveDocument().getBody();
                 HighlightText(rec['original_text'], '#ffffff');
-                //Logger.log("Replacing: '" + rec['original_text'] + "' with '" + rec['new_values'][selected_index] + "'");
-                body.replaceText(rec['original_text'], rec['new_values'][selected_index]);
+                if(rec['new_parts'] === null){
+                    body.replaceText(rec['original_text'], rec['new_values'][selected_index]);
+                }
+                else{
+                    body.replaceText(rec['original_text'], rec['new_parts'][0] + rec['conjunctions'][selected_index] + rec['new_parts'][1]);
+                }
                 return;
             }
         });
