@@ -133,23 +133,12 @@ function UpdateRecommendationsList(data, hiddenItems){
                         counter++;
                     });
                     paragraphs[para_index] += "</select><span>" + rec['new_parts'][1] + "</span></div><br>";
-
-                    // else { //TODO remove this old method once new one is integrated
-                    //     paragraphs[para_index] += "<div class=recText id='newValueOptions_" + rec['uuid'] + "'>";
-                    //     rec['new_values'].forEach(function () {
-                    //         paragraphs[para_index] += "<input name='" + rec['uuid'] + "' type='radio' class='radio_" + rec['uuid'] + "' id='" + counter + "'/>";
-                    //         paragraphs[para_index] += "<span id='value_" + rec['uuid'] + "' class='" + counter + "'>" + rec['new_values'][counter] + "</span><br>";
-                    //         counter++;
-                    //     });
-                    //     paragraphs[para_index] +="</div>";
-                    // }
                 } else {
                     paragraphs[para_index] += "<div class=recText>" + GetRecString(rec['recommendation_type']) + rec['new_values'][0] + "</div>\n";
                 }
                 paragraphs[para_index] += "</div>\n";
-                Logger.log(paragraphs[para_index]);
 
-                HighlightText(rec['original_text'], '#f69e42')
+                HighlightText(rec['text_to_highlight'], '#f69e42')
             }
         }
     });
@@ -191,11 +180,19 @@ function ShowErrorMultiSelect(count) {
 
 function HighlightText(stringText, color) {
     var body = DocumentApp.getActiveDocument().getBody();
-    var text = body.editAsText();
-    var rangeObj = body.findText(stringText);
+    if(body !== null){
+        var text = body.editAsText();
+        var rangeObj = body.findText(stringText);
 
-    if(rangeObj !== null){
-        text.setBackgroundColor(rangeObj.getStartOffset(), rangeObj.getEndOffsetInclusive(), color)
+        if(rangeObj !== null) {
+            text.setBackgroundColor(rangeObj.getStartOffset(), rangeObj.getEndOffsetInclusive(), color)
+        }
+        else {
+            Logger.log("Null range");
+        }
+    }
+    else{
+        Logger.log("null body");
     }
 }
 
@@ -240,7 +237,7 @@ function DoSubstitution(recID, selected_index){
         currentRecommendations.forEach(function (rec) {
             if (recID === rec['uuid'] && rec['is_replaceable']) {
                 var body = DocumentApp.getActiveDocument().getBody();
-                HighlightText(rec['original_text'], '#ffffff');
+                HighlightText(rec['text_to_highlight'], '#ffffff');
                 if(rec['new_parts'] === null){
                     body.replaceText(rec['original_text'], rec['new_values'][selected_index]);
                 }
@@ -262,7 +259,7 @@ function UndoHighlighting(recID) {
     if(currentRecommendations !== null) {
         currentRecommendations.forEach(function (rec) {
             if (recID === rec['uuid']) {
-                HighlightText(rec['original_text'], '#ffffff')
+                HighlightText(rec['text_to_highlight'], '#ffffff')
                 return;
             }
         });
@@ -304,11 +301,9 @@ function getRecommendation(document) {
         "payload" : JSON.stringify(payload)
     };
 
-    Logger.log("recommendationRequest: " + JSON.stringify(payload));
     var response = UrlFetchApp.fetch(analyze_url_path, options).getContentText();
     var responseObj = JSON.parse(response);
     results = results.concat(responseObj);
-    Logger.log("recommendationResponse: " + response);
 
     return results;
 }
