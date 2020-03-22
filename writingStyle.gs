@@ -30,16 +30,6 @@ function onOpen(e) {
         .addToUi();
 }
 
-function onClose(e) {
-    var body = DocumentApp.getActiveDocument().getBody();
-    var text = body.editAsText();
-    var rangeObj = body.findText(".*");
-
-    if(rangeObj !== null){
-        text.setBackgroundColor(rangeObj.getStartOffset(), rangeObj.getEndOffsetInclusive(), '#ffffff')
-    }
-}
-
 /**
  * Runs when the add-on is installed.
  * This method is only used by the regular add-on, and is never called by
@@ -180,20 +170,15 @@ function ShowErrorMultiSelect(count) {
 
 function HighlightText(stringText, color) {
     var body = DocumentApp.getActiveDocument().getBody();
-    if(body !== null){
-        var text = body.editAsText();
-        var rangeObj = body.findText(stringText);
+    var paragraphs = body.getParagraphs();
 
+    paragraphs.forEach(function (paragraph) {
+        var rangeObj = paragraph.findText(stringText);
         if(rangeObj !== null) {
-            text.setBackgroundColor(rangeObj.getStartOffset(), rangeObj.getEndOffsetInclusive(), color)
+            paragraph.editAsText().setBackgroundColor(rangeObj.getStartOffset(), rangeObj.getEndOffsetInclusive(), color);
+            return;
         }
-        else {
-            Logger.log("Null range");
-        }
-    }
-    else{
-        Logger.log("null body");
-    }
+    });
 }
 
 function GetUserFriendlyType(type){
@@ -259,7 +244,7 @@ function UndoHighlighting(recID) {
     if(currentRecommendations !== null) {
         currentRecommendations.forEach(function (rec) {
             if (recID === rec['uuid']) {
-                HighlightText(rec['text_to_highlight'], '#ffffff')
+                HighlightText(rec['text_to_highlight'], '#ffffff');
                 return;
             }
         });
