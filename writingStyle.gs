@@ -26,18 +26,8 @@ var cache = CacheService.getDocumentCache();
  */
 function onOpen(e) {
     DocumentApp.getUi().createAddonMenu()
-    .addItem('Start', 'showSidebar')
-    .addToUi();
-}
-
-function onClose(e) {
-    var body = DocumentApp.getActiveDocument().getBody();
-    var text = body.editAsText();
-    var rangeObj = body.findText(".*");
-
-    if(rangeObj !== null){
-        text.setBackgroundColor(rangeObj.getStartOffset(), rangeObj.getEndOffsetInclusive(), '#ffffff')
-    }
+        .addItem('Start', 'showSidebar')
+        .addToUi();
 }
 
 /**
@@ -52,7 +42,7 @@ function onClose(e) {
  *     AuthMode.NONE.)
  */
 function onInstall(e) {
-  onOpen(e);
+    onOpen(e);
 }
 
 /**
@@ -92,7 +82,6 @@ function UpdateRecommendationsList(data, hiddenItems){
     var paragraphs = {};
     var mostRecentRecs = [];
     var results = data[0].results;
-    var cache = CacheService.getDocumentCache();
 
     if(data === undefined){
         console.log("Data was not defined");
@@ -111,11 +100,12 @@ function UpdateRecommendationsList(data, hiddenItems){
 
     results.forEach(function(rec) {
         mostRecentRecs.push(rec['uuid']);
-        if(hiddenItems === null || hiddenItems.toString().indexOf(rec['uuid']) === -1){ //If the user has not already accepted/rejected it
+        if(hiddenItems === null || hiddenItems.toString().indexOf(rec['uuid']) === -1) { //If the user has not already accepted/rejected it
             var para_index = rec['paragraph_index'];
             if (!(para_index in paragraphs)) {
                 paragraphs[para_index] = ""
             }
+            var counter = 0;
             if (para_index in paragraphs) {
                 paragraphs[para_index] = paragraphs[para_index] + "<div id=" + rec['uuid'] + " class='recommendationCard'>\n" +
                     " <div class=recHeader>\n" +
@@ -126,23 +116,19 @@ function UpdateRecommendationsList(data, hiddenItems){
                     "     <img id='" + rec['uuid'] + "' class='recIconThumb thumbs_down' src=\"https://manicotti.se.rit.edu/thumbs-down.png\" alt=\"thumbs down\">\n" +
                     "     <img id='" + rec['uuid'] + "' class='recIconThumb thumbs_up' src=\"https://manicotti.se.rit.edu/thumbs-up.png\" alt=\"thumbs up\">\n" +
                     "   </div>\n";
-                if(rec['new_values'].length > 1){
-                    var counter = 0;
-                    paragraphs[para_index] += "<div class=recText id='newValueOptions_" + rec['uuid'] + "'>";
-                    rec['new_values'].forEach(function (newVal) {
-                        paragraphs[para_index] += "<input name='" + rec['uuid'] + "' type='radio' class='radio_" + rec['uuid'] + "' id='" + counter + "'/>";
-                        paragraphs[para_index] += "<span id='value_" + rec['uuid'] + "' class='" + counter + "'>" + rec['new_values'][counter] + "</span><br>";
+                if (rec['new_parts'] !== undefined) {
+                    paragraphs[para_index] += "<div class=recText><span id='value_" + rec['uuid'] + "'>" + rec['new_parts'][0] + "</span><select class='select_StoC' id='newValueOptions_" + rec['uuid'] + "'>";
+                    rec['conjunctions'].forEach(function () {
+                        paragraphs[para_index] += "<option value='" + counter + "'>" + rec['conjunctions'][counter] + "</option>"
                         counter++;
                     });
-                    paragraphs[para_index] +="</div>";
-                }
-                else{
+                    paragraphs[para_index] += "</select><span>" + rec['new_parts'][1] + "</span></div><br>";
+                } else {
                     paragraphs[para_index] += "<div class=recText>" + GetRecString(rec['recommendation_type']) + rec['new_values'][0] + "</div>\n";
                 }
+                paragraphs[para_index] += "</div>\n";
 
-                paragraphs[para_index] +="</div>\n";
-
-                HighlightText(rec['original_text'], '#f69e42')
+                HighlightText(rec['text_to_highlight'], '#f69e42')
             }
         }
     });
@@ -150,18 +136,18 @@ function UpdateRecommendationsList(data, hiddenItems){
         var num = (parseInt(paragraphNum, 10) + 1);
         if(paragraphNum > 0){
             html += "<div>" +
-                        "<div class='pargraphLabel'>" +
-                            "Paragraph: " + num + "" +
-                            "<img id='paragraph_" + num + "' class='collapse' src='https://manicotti.se.rit.edu/plus.png' alt='plus'>" +
-                        "</div>\n" +
-                    "<div class='paragraph_recs' id='recommendations_" + num + "'>" + paragraphs[paragraphNum]  + "</div>";
-                "</div>\n"
+                "<div class='pargraphLabel'>" +
+                "Paragraph: " + num + "" +
+                "<img id='paragraph_" + num + "' class='collapse' src='https://manicotti.se.rit.edu/plus.png' alt='plus'>" +
+                "</div>\n" +
+                "<div class='paragraph_recs' id='recommendations_" + num + "'>" + paragraphs[paragraphNum]  + "</div>";
+            "</div>\n"
         }
         else{
             //First item shouldn't have a title because its baked in with the settings options
             html += "<div>" +
-                        "<div class='paragraph_recs' id='recommendations_1'>" + paragraphs[paragraphNum]  + "</div>";
-                    "</div>"
+                "<div class='paragraph_recs' id='recommendations_1'>" + paragraphs[paragraphNum]  + "</div>";
+            "</div>"
         }
     });
 
@@ -184,12 +170,15 @@ function ShowErrorMultiSelect(count) {
 
 function HighlightText(stringText, color) {
     var body = DocumentApp.getActiveDocument().getBody();
-    var text = body.editAsText();
-    var rangeObj = body.findText(stringText);
+    var paragraphs = body.getParagraphs();
 
-    if(rangeObj !== null){
-        text.setBackgroundColor(rangeObj.getStartOffset(), rangeObj.getEndOffsetInclusive(), color)
-    }
+    paragraphs.forEach(function (paragraph) {
+        var rangeObj = paragraph.findText(stringText);
+        if(rangeObj !== null) {
+            paragraph.editAsText().setBackgroundColor(rangeObj.getStartOffset(), rangeObj.getEndOffsetInclusive(), color);
+            return;
+        }
+    });
 }
 
 function GetUserFriendlyType(type){
@@ -233,9 +222,13 @@ function DoSubstitution(recID, selected_index){
         currentRecommendations.forEach(function (rec) {
             if (recID === rec['uuid'] && rec['is_replaceable']) {
                 var body = DocumentApp.getActiveDocument().getBody();
-                HighlightText(rec['original_text'], '#ffffff');
-                //Logger.log("Replacing: '" + rec['original_text'] + "' with '" + rec['new_values'][selected_index] + "'");
-                body.replaceText(rec['original_text'], rec['new_values'][selected_index]);
+                HighlightText(rec['text_to_highlight'], '#ffffff');
+                if(rec['new_parts'] === null){
+                    body.replaceText(rec['original_text'], rec['new_values'][selected_index]);
+                }
+                else{
+                    body.replaceText(rec['original_text'], rec['new_parts'][0] + rec['conjunctions'][selected_index] + rec['new_parts'][1]);
+                }
                 return;
             }
         });
@@ -251,7 +244,7 @@ function UndoHighlighting(recID) {
     if(currentRecommendations !== null) {
         currentRecommendations.forEach(function (rec) {
             if (recID === rec['uuid']) {
-                HighlightText(rec['original_text'], '#ffffff')
+                HighlightText(rec['text_to_highlight'], '#ffffff');
                 return;
             }
         });
@@ -277,10 +270,8 @@ function getRecommendation(document) {
     var results = [];
     var paragraphs = document.getBody().getParagraphs();
     var paragraph_text = [];
-    var similarityThreshold = parseFloat(PropertiesService.getScriptProperties().getProperty("similarityThreshold"));
-  
     for (var i = 0; i < paragraphs.length; i++) {
-      paragraph_text.push(paragraphs[i].getText());
+        paragraph_text.push(paragraphs[i].getText());
     }
 
     var payload = {
@@ -295,11 +286,9 @@ function getRecommendation(document) {
         "payload" : JSON.stringify(payload)
     };
 
-    Logger.log("recommendationRequest: " + JSON.stringify(payload));
     var response = UrlFetchApp.fetch(analyze_url_path, options).getContentText();
     var responseObj = JSON.parse(response);
     results = results.concat(responseObj);
-    Logger.log("recommendationResponse: " + response);
 
     return results;
 }
